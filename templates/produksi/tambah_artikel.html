@@ -1,0 +1,147 @@
+{% extends "base.html" %}
+{% block content %}
+
+<!-- Import Font Premium (Jika belum ada di base.html) -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&family=Plus+Jakarta+Sans:wght@500;600;700&display=swap" rel="stylesheet">
+
+<style>
+  /* --- SCOPED CSS --- */
+  .form-container {
+    font-family: 'Inter', sans-serif;
+    max-width: 700px; /* Fokus di tengah agar tidak terlalu lebar */
+    margin: 0 auto;
+  }
+
+  .page-title {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 700;
+    color: #0f172a;
+    letter-spacing: -0.5px;
+  }
+
+  .card-form {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px -5px rgba(0, 0, 0, 0.05);
+    padding: 2.5rem;
+  }
+
+  .form-label {
+    font-weight: 600;
+    color: #334155;
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .form-control {
+    border-radius: 10px;
+    padding: 0.75rem 1rem;
+    border: 1px solid #cbd5e1;
+    background-color: #f8fafc; /* Sedikit abu agar kontras dengan kartu putih */
+    font-size: 0.95rem;
+    transition: all 0.2s;
+  }
+
+  .form-control:focus {
+    background-color: #fff;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+  }
+
+  .btn-primary-corp {
+    background-color: #0f172a; /* Midnight Blue */
+    border-color: #0f172a;
+    color: #fff;
+    padding: 0.75rem 1.5rem;
+    border-radius: 10px;
+    font-weight: 600;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    transition: all 0.2s;
+  }
+
+  .btn-primary-corp:hover {
+    background-color: #1e293b;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.2);
+  }
+
+  .btn-secondary-corp {
+    background-color: #fff;
+    border: 1px solid #e2e8f0;
+    color: #64748b;
+    padding: 0.75rem 1.5rem;
+    border-radius: 10px;
+    font-weight: 600;
+  }
+
+  .btn-secondary-corp:hover {
+    background-color: #f1f5f9;
+    color: #334155;
+  }
+
+  .helper-text {
+    font-size: 0.8rem;
+    color: #94a3b8;
+    margin-top: 0.25rem;
+  }
+</style>
+
+<div class="container py-4 form-container">
+  
+  <!-- Header Section -->
+  <div class="text-center mb-5">
+    <h2 class="page-title mb-2">Artikel Baru</h2>
+    <p class="text-muted">Mulai alur produksi untuk model atau artikel baru.</p>
+  </div>
+
+  <!-- Form Card -->
+  <div class="card-form">
+    <form method="POST" enctype="multipart/form-data">
+      
+      <!-- Input Nama -->
+      <div class="mb-4">
+        <label class="form-label">
+          <i class="bi bi-tag-fill me-1 text-primary"></i> Nama Artikel
+        </label>
+        <input type="text" name="nama_artikel" class="form-control" 
+               placeholder="Contoh: Kemeja Linen Oversize V2" required autofocus>
+        <div class="helper-text">Nama artikel harus unik dan belum pernah digunakan sebelumnya.</div>
+      </div>
+
+      <!-- Input Keterangan -->
+      <div class="mb-4">
+        <label class="form-label">
+          <i class="bi bi-text-paragraph me-1 text-primary"></i> Keterangan / Catatan
+        </label>
+        <textarea name="keterangan" class="form-control" rows="4" 
+                  placeholder="Tulis detail spesifikasi, deadline, atau catatan khusus..."></textarea>
+      </div>
+
+      <!-- Input Gambar -->
+      <div class="mb-4">
+        <label class="form-label">
+          <i class="bi bi-image me-1 text-primary"></i> Foto Referensi / Desain
+        </label>
+        <input type="file" name="gambar" accept="image/*" class="form-control">
+        <div class="helper-text">Format: JPG, PNG. Maksimal 2MB. (Opsional)</div>
+      </div>
+
+      <hr class="my-4" style="border-color: #f1f5f9;">
+
+      <!-- Action Buttons -->
+      <div class="d-flex gap-3 justify-content-end">
+        <a href="{{ url_for('produksi.index') }}" class="btn btn-secondary-corp">
+          Batal
+        </a>
+        <button type="submit" class="btn btn-primary-corp">
+          <i class="bi bi-check-lg me-1"></i> Simpan & Mulai Produksi
+        </button>
+      </div>
+
+    </form>
+  </div>
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+{% block content %}
+
+<!-- Font Premium -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&family=Plus+Jakarta+Sans:wght@500;600;700&display=swap" rel="stylesheet">
+
+<style>
+  .form-container { max-width: 800px; margin: 0 auto; font-family: 'Inter', sans-serif; }
+  .page-title { font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 700; color: #0f172a; }
+  .card-form { background: #fff; border-radius: 16px; padding: 2.5rem; box-shadow: 0 4px 20px -5px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; }
+  .form-label { font-weight: 600; font-size: 0.85rem; color: #334155; }
+  .form-control, .form-select { border-radius: 10px; padding: 0.75rem; border: 1px solid #cbd5e1; background: #f8fafc; }
+  .form-control:focus { background: #fff; border-color: #3b82f6; box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1); }
+  .btn-save { background: #0f172a; color: #fff; padding: 0.75rem 1.5rem; border-radius: 8px; border: none; font-weight: 600; transition: 0.2s; }
+  .btn-save:hover { background: #1e293b; transform: translateY(-1px); }
+  .section-title { font-size: 0.75rem; text-transform: uppercase; color: #94a3b8; font-weight: 700; letter-spacing: 1px; margin-bottom: 1rem; }
+</style>
+
+<div class="container py-4 form-container">
+  <div class="text-center mb-4">
+    <h2 class="page-title">Input Pembelian Bahan</h2>
+    <p class="text-muted">Data yang diinput akan otomatis menambah stok di Gudang yang dipilih.</p>
+  </div>
+
+  <div class="card-form">
+    <form method="POST">
+      
+      <div class="section-title">Lokasi & Barang</div>
+      <div class="row g-4 mb-4">
+        <!-- PILIH GUDANG TUJUAN (BARU) -->
+        <div class="col-12">
+          <div class="p-3 bg-light border rounded">
+            <label class="form-label text-primary mb-2"><i class="bi bi-geo-alt-fill me-1"></i> Simpan ke Gudang:</label>
+            <select name="lokasi_tujuan" class="form-select fw-bold">
+              <option value="Gudang Utama" selected>Gudang Utama (PT Glory)</option>
+              <option value="Gudang Episode">Gudang 2 (Episode)</option>
+              <option value="Gudang Cargo FO">Gudang 3 (Cargo FO)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Detail Bahan -->
+        <div class="col-md-6">
+          <label class="form-label">Nama Bahan / Item</label>
+          <input type="text" name="nama_bahan" class="form-control" placeholder="Contoh: Kain Combed 30s Hitam" required>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Nama Toko / Supplier</label>
+          <input type="text" name="nama_toko" class="form-control" placeholder="Contoh: Toko Sinar Jaya">
+        </div>
+      </div>
+
+      <div class="section-title">Jumlah & Harga</div>
+      <div class="row g-4">
+        <!-- Kuantitas -->
+        <div class="col-md-6">
+          <label class="form-label">Jumlah Beli</label>
+          <input type="number" step="any" name="jumlah" class="form-control" placeholder="0" required>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Satuan</label>
+          <select name="satuan" class="form-select">
+            <option value="Kg">Kilogram (Kg)</option>
+            <option value="Roll">Roll</option>
+            <option value="Meter">Meter</option>
+            <option value="Pcs">Pcs</option>
+            <option value="Yard">Yard</option>
+            <option value="Lusin">Lusin</option>
+          </select>
+        </div>
+
+        <!-- Harga -->
+        <div class="col-md-12">
+          <label class="form-label">Harga Satuan (Rp)</label>
+          <div class="input-group">
+            <span class="input-group-text bg-light border-end-0">Rp</span>
+            <input type="number" name="harga_satuan" class="form-control border-start-0" placeholder="0">
+          </div>
+          <small class="text-muted fst-italic">* Total harga akan dihitung otomatis oleh sistem.</small>
+        </div>
+
+        <div class="col-12">
+          <label class="form-label">Keterangan / No. Nota</label>
+          <textarea name="keterangan" class="form-control" rows="2" placeholder="Catatan tambahan..."></textarea>
+        </div>
+      </div>
+
+      <hr class="my-4" style="border-color: #f1f5f9;">
+
+      <div class="d-flex justify-content-end gap-3">
+        <a href="{{ url_for('pembelian.index') }}" class="btn btn-light border text-secondary fw-bold px-4">Batal</a>
+        <button type="submit" class="btn-save">
+          <i class="bi bi-box-arrow-in-down me-2"></i>Simpan Stok
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

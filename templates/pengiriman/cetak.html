@@ -1,0 +1,148 @@
+{% extends "base.html" %}
+{% block content %}
+
+<style>
+  /* Tampilan Layar */
+  .preview-bar { background: #f1f5f9; padding: 15px; border-bottom: 1px solid #ddd; display: flex; justify-content: space-between; align-items: center; }
+  
+  /* KERTAS A4 */
+  .page-a4 {
+    background: white;
+    width: 210mm;
+    min-height: 297mm;
+    margin: 20px auto;
+    padding: 20mm;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    font-family: 'Times New Roman', Times, serif;
+    color: #000;
+    position: relative;
+  }
+
+  /* TABLE SURAT JALAN */
+  .table-surat { width: 100%; border-collapse: collapse; margin-top: 20px; }
+  .table-surat th, .table-surat td { border: 1px solid #000; padding: 8px; vertical-align: top; }
+  .table-surat th { background: #eee; text-align: center; text-transform: uppercase; font-size: 11pt; }
+  
+  /* INFO HEADER */
+  .info-box { display: flex; justify-content: space-between; margin-bottom: 20px; }
+  .info-left { width: 55%; }
+  .info-right { width: 40%; border: 1px solid #000; padding: 10px; }
+
+  /* SIGNATURE */
+  .sign-area { display: flex; justify-content: space-between; margin-top: 50px; text-align: center; }
+  .sign-box { width: 30%; }
+  .sign-line { margin-top: 70px; border-bottom: 1px solid #000; }
+
+  /* --- MODE CETAK --- */
+  @media print {
+    @page { size: A4; margin: 0; }
+    body { background: #fff; }
+    .preview-bar, .sidebar, .top-header, .btn { display: none !important; }
+    .main-content { margin: 0; padding: 0; }
+    .page-a4 { margin: 0; box-shadow: none; width: 100%; height: auto; padding: 15mm; }
+    /* Pastikan background tabel tercetak */
+    .table-surat th { -webkit-print-color-adjust: exact; }
+  }
+</style>
+
+<!-- TOMBOL PREVIEW -->
+<div class="preview-bar">
+  <div>
+    <h5 class="m-0 fw-bold text-dark">Preview Surat Jalan</h5>
+    <small class="text-muted">{{ order.no_surat }}</small>
+  </div>
+  <div>
+    <a href="{{ url_for('pengiriman.index') }}" class="btn btn-light border me-2">Kembali</a>
+    <button onclick="window.print()" class="btn btn-primary"><i class="bi bi-printer-fill"></i> Cetak Dokumen</button>
+  </div>
+</div>
+
+<!-- AREA KERTAS -->
+<div class="page-a4">
+  
+  <!-- KOP SURAT -->
+  <div class="text-center border-bottom border-dark pb-3 mb-4">
+    <h2 class="fw-bold m-0" style="letter-spacing: 2px;">PT GLORY MITRA INDO</h2>
+    <p class="m-0 small">Jl. Industri Raya No. 88, Jakarta | Telp: (021) 555-8888</p>
+    <p class="m-0 small">Email: logistik@glorymitra.com</p>
+  </div>
+
+  <h3 class="text-center fw-bold text-decoration-underline mb-4">SURAT JALAN (DELIVERY ORDER)</h3>
+
+  <!-- INFO PENGIRIMAN -->
+  <div class="info-box">
+    <div class="info-left">
+      <table class="table table-borderless table-sm m-0">
+        <tr><td width="100">Kepada Yth.</td><td>: <strong>{{ order.nama_penerima }}</strong></td></tr>
+        <tr><td>Alamat</td><td>: {{ order.alamat_tujuan }}</td></tr>
+        <tr><td>Telp</td><td>: {{ order.no_telp or '-' }}</td></tr>
+      </table>
+    </div>
+    <div class="info-right">
+      <table class="table table-borderless table-sm m-0">
+        <tr><td>No. Surat</td><td>: <strong>{{ order.no_surat }}</strong></td></tr>
+        <tr><td>Tanggal</td><td>: {{ order.tanggal.strftime('%d %B %Y') }}</td></tr>
+        <tr><td>Kurir</td><td>: {{ order.nama_kurir }}</td></tr>
+        <tr><td>Kendaraan</td><td>: {{ order.jenis_kendaraan }} ({{ order.nopol_kendaraan }})</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <p>Kami kirimkan barang-barang di bawah ini dengan rincian sebagai berikut:</p>
+
+  <!-- TABEL BARANG -->
+  <table class="table-surat">
+    <thead>
+      <tr>
+        <th width="50">No</th>
+        <th>Nama Barang / Deskripsi</th>
+        <th width="100">Ceklist</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for item in barang_lines %}
+      <tr>
+        <td class="text-center">{{ loop.index }}</td>
+        <td>{{ item }}</td>
+        <td class="text-center"><small>[ &nbsp;&nbsp;&nbsp; ]</small></td>
+      </tr>
+      {% else %}
+      <tr><td colspan="3" class="text-center">Tidak ada rincian barang.</td></tr>
+      {% endfor %}
+      
+      <!-- Baris Kosong Tambahan agar kertas tidak terlalu kosong -->
+      <tr><td class="text-center">-</td><td></td><td></td></tr>
+      <tr><td class="text-center">-</td><td></td><td></td></tr>
+    </tbody>
+  </table>
+
+  {% if order.catatan %}
+  <div class="mt-3 p-2 border border-dark">
+    <strong>Catatan:</strong> {{ order.catatan }}
+  </div>
+  {% endif %}
+
+  <p class="mt-3 small"><i>* Mohon diperiksa kembali kondisi barang saat diterima. Komplain setelah surat jalan ditandatangani tidak dapat kami proses.</i></p>
+
+  <!-- TANDA TANGAN -->
+  <div class="sign-area">
+    <div class="sign-box">
+      <p>Penerima,</p>
+      <div class="sign-line"></div>
+      <p class="mt-1">Tanda Tangan & Stempel</p>
+    </div>
+    <div class="sign-box">
+      <p>Kurir / Driver,</p>
+      <div class="sign-line"></div>
+      <p class="mt-1">{{ order.nama_kurir }}</p>
+    </div>
+    <div class="sign-box">
+      <p>Hormat Kami,</p>
+      <div class="sign-line"></div>
+      <p class="mt-1">Bagian Gudang</p>
+    </div>
+  </div>
+
+</div>
+
+{% endblock %}

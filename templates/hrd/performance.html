@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% block title %}Performance Karyawan{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <h3 class="fw-bold text-primary mb-3">
+    <i class="bi bi-bar-chart-line-fill me-2"></i>Performance Karyawan
+  </h3>
+
+  <!-- Form Tambah Penilaian -->
+  <form action="{{ url_for('hrd.performance_add') }}" method="post"
+        class="card p-4 shadow-sm mb-4 border-0">
+    <div class="row g-3 align-items-end">
+      <div class="col-md-3">
+        <label class="form-label fw-semibold">Karyawan</label>
+        <select class="form-select" name="employee_id" required>
+          <option value="">-- pilih karyawan --</option>
+          {% for e in employees %}
+          <option value="{{ e.id }}">{{ e.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-md-2">
+        <label class="form-label fw-semibold">Periode</label>
+        <input type="month" name="period" class="form-control" required>
+      </div>
+      <div class="col-md-2">
+        <label class="form-label fw-semibold">Nilai (0‑100)</label>
+        <input type="number" name="score" min="0" max="100" step="0.1"
+               class="form-control" required>
+      </div>
+      <div class="col-md-3">
+        <label class="form-label fw-semibold">Catatan</label>
+        <input type="text" name="remarks" class="form-control"
+               placeholder="Komentar singkat">
+      </div>
+      <div class="col-md-2 d-grid">
+        <button class="btn btn-primary">
+          <i class="bi bi-plus-circle"></i> Tambah
+        </button>
+      </div>
+    </div>
+  </form>
+
+  <!-- Data Performance -->
+  <div class="card shadow-sm border-0">
+    <div class="card-body table-responsive">
+      <table class="table table-hover align-middle text-center">
+        <thead class="table-primary">
+          <tr>
+            <th>#</th><th>Karyawan</th><th>Periode</th><th>Nilai</th>
+            <th>Catatan</th><th>Penilai</th>
+          </tr>
+        </thead>
+        <tbody>
+        {% for r in records %}
+          <tr>
+            <td>{{ loop.index }}</td>
+            <td>{{ r.name }}</td>
+            <td>{{ r.period }}</td>
+            <td>
+              {% if r.score >= 85 %}
+                <span class="badge bg-success">{{ r.score }}</span>
+              {% elif r.score >= 70 %}
+                <span class="badge bg-warning text-dark">{{ r.score }}</span>
+              {% else %}
+                <span class="badge bg-danger">{{ r.score }}</span>
+              {% endif %}
+            </td>
+            <td>{{ r.remarks or '-' }}</td>
+            <td>{{ r.evaluator }}</td>
+          </tr>
+        {% else %}
+          <tr><td colspan="6" class="text-muted">Belum ada data penilaian.</td></tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+{% block title %}Dashboard Accounting{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <h3 class="fw-bold text-primary mb-4">
+    <i class="bi bi-cash-stack me-2"></i>Dashboard Accounting
+  </h3>
+
+  <!-- Ringkasan Keuangan -->
+  <div class="row g-3 text-center">
+    <div class="col-md-4">
+      <div class="card text-white" style="background:#0d6efd;">
+        <div class="card-body">
+          <h6>Saldo Kas</h6>
+          <h2 class="fw-bold">Rp {{ "{:,.0f}".format(summary.balance or 0) }}</h2>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card text-white bg-success">
+        <div class="card-body">
+          <h6>Pendapatan Bulan Ini</h6>
+          <h2 class="fw-bold">Rp {{ "{:,.0f}".format(summary.income or 0) }}</h2>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card text-dark bg-warning">
+        <div class="card-body">
+          <h6>Pengeluaran Bulan Ini</h6>
+          <h2 class="fw-bold">Rp {{ "{:,.0f}".format(summary.expense or 0) }}</h2>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Form Tambah Transaksi -->
+  <form
+    action="{{ url_for('accounting.add_txn') }}"
+    method="post"
+    enctype="multipart/form-data"
+    class="card mt-4 shadow-sm border-0 p-3"
+  >
+    <div class="row g-3 align-items-end">
+      <div class="col-md-2">
+        <label class="form-label fw-semibold">Kategori</label>
+        <select class="form-select" name="category" required>
+          <option value="income">Pendapatan</option>
+          <option value="expense">Pengeluaran</option>
+        </select>
+      </div>
+      <div class="col-md-2">
+        <label class="form-label fw-semibold">Keterangan</label>
+        <input type="text" name="description" class="form-control" placeholder="Deskripsi transaksi">
+      </div>
+      <div class="col-md-2">
+        <label class="form-label fw-semibold">Sumber / Divisi</label>
+        <input type="text" name="source" class="form-control">
+      </div>
+      <div class="col-md-2">
+        <label class="form-label fw-semibold">Akun</label>
+        <input type="text" name="account" class="form-control" placeholder="Kas / Bank">
+      </div>
+      <div class="col-md-2">
+        <label class="form-label fw-semibold">Jumlah (Rp)</label>
+        <input type="number" step="0.01" name="amount" class="form-control" required>
+      </div>
+      <div class="col-md-2">
+        <label class="form-label fw-semibold">Bukti (Opsional)</label>
+        <input type="file" name="receipt" class="form-control" accept="image/*,application/pdf">
+      </div>
+    </div>
+    <div class="text-end mt-3">
+      <button class="btn btn-primary px-4">
+        <i class="bi bi-plus-circle"></i> Tambah
+      </button>
+    </div>
+  </form>
+
+  <!-- Tabel Transaksi -->
+  <div class="card mt-4 shadow-sm border-0">
+    <div class="card-body table-responsive">
+      <table class="table table-hover align-middle text-center">
+        <thead class="table-primary">
+          <tr>
+            <th>#</th><th>Tanggal</th><th>Kategori</th><th>Deskripsi</th>
+            <th>Sumber</th><th>Akun</th><th>Jumlah (Rp)</th><th>Bukti</th>
+          </tr>
+        </thead>
+        <tbody>
+        {% for t in transactions %}
+          <tr>
+            <td>{{ loop.index }}</td>
+            <td>{{ t.date.strftime('%d/%m/%Y') }}</td>
+            <td>
+              {% if t.category == 'income' %}
+                <span class="badge bg-success">Pendapatan</span>
+              {% else %}
+                <span class="badge bg-warning text-dark">Pengeluaran</span>
+              {% endif %}
+            </td>
+            <td>{{ t.description or '-' }}</td>
+            <td>{{ t.source or '-' }}</td>
+            <td>{{ t.account or '-' }}</td>
+            <td class="text-end">{{ "{:,.0f}".format(t.amount or 0) }}</td>
+            <td>
+              {% if t.receipt %}
+                <a href="{{ url_for('static', filename='uploads/accounting/' ~ t.receipt) }}" target="_blank">
+                  <i class="bi bi-paperclip"></i> Lihat
+                </a>
+              {% else %}
+                <span class="text-muted">‑</span>
+              {% endif %}
+            </td>
+          </tr>
+        {% else %}
+          <tr>
+            <td colspan="8" class="text-muted">Belum ada transaksi.</td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+{% block title %}Surat Penawaran{% endblock %}
+{% block content %}
+<div class="container mt-4">
+
+  {% if not as_pdf %}
+  <!-- ===== Form Input Surat Penawaran ===== -->
+  <h3 class="fw-bold text-primary mb-3">
+    <i class="bi bi-envelope-paper me-1"></i> Buat Surat Penawaran
+  </h3>
+
+  <form method="post" class="card p-4 shadow-sm border-0">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <div class="mb-3">
+      <label class="form-label fw-semibold">Nama Perusahaan Tujuan</label>
+      <input type="text" name="company_name" class="form-control" required placeholder="Contoh : PT Maju Jaya Abadi">
+    </div>
+    <div class="mb-3">
+      <label class="form-label fw-semibold">Alamat Perusahaan</label>
+      <input type="text" name="company_address" class="form-control" required placeholder="Alamat lengkap perusahaan">
+    </div>
+    <div class="mb-3">
+      <label class="form-label fw-semibold">Produk / Layanan yang Ditawarkan</label>
+      <textarea name="products" class="form-control" rows="4" required placeholder="Pisahkan dengan Enter untuk beberapa produk"></textarea>
+    </div>
+    <button type="submit" class="btn btn-success">
+      <i class="bi bi-file-earmark-pdf-fill me-1"></i> Generate PDF
+    </button>
+  </form>
+
+  {% else %}
+  <!-- ===== Surat Resmi (Untuk PDF) ===== -->
+  <div style="font-family:'Times New Roman',serif;font-size:12pt;line-height:1.5;">
+
+    <!-- Kop Surat -->
+    <div style="text-align:center;border-bottom:2px solid #000;padding-bottom:10px;margin-bottom:25px;">
+      <img src="{{ url_for('static', filename='icons/company_logo.png') }}" alt="Logo" style="width:90px;vertical-align:middle;margin-bottom:5px;"><br>
+      <strong style="font-size:14pt;">PT Holycity Indonesia</strong><br>
+      Jl. Harmonis No. 88 – Jakarta Pusat 10110 | Telp (021) 555‑9898 | Email : info@holycity.co.id
+    </div>
+
+    <!-- Judul & Nomor -->
+    <h4 style="text-align:center;text-transform:uppercase;margin-bottom:10px;">SURAT PENAWARAN</h4>
+    <p><strong>No :</strong> SP/{{ now().strftime('%m') }}/{{ now().year }}</p>
+
+    <!-- Tujuan -->
+    <p>Kepada Yth:<br>
+      <strong>{{ company_name }}</strong><br>
+      {{ company_address }}
+    </p>
+
+    <!-- Isi Surat -->
+    <p>Dengan hormat,</p>
+    <p>
+      Sehubungan dengan kebutuhan perusahaan {{ company_name }} terhadap produk atau layanan kami,
+      dengan ini kami menyampaikan penawaran dari <strong>PT Holycity Indonesia</strong>.
+    </p>
+
+    <p>Berikut daftar produk / layanan yang kami tawarkan :</p>
+    <ul>
+      {% for item in products %}
+      <li>{{ item }}</li>
+      {% endfor %}
+    </ul>
+
+    <p>
+      Harga dan ketentuan dapat dibicarakan lebih lanjut sesuai kebutuhan dan kesepakatan bersama.
+      Kami berharap kerja sama ini dapat memberikan manfaat bagi kedua perusahaan.
+    </p>
+    <p>Demikian surat penawaran ini kami sampaikan. Atas perhatian dan kesempatan yang diberikan kami ucapkan terima kasih.</p>
+
+    <!-- Tanda Tangan -->
+    <div style="text-align:right;margin-top:70px;">
+      Hormat kami,<br><br><br>
+      <strong>Marketing Team PT Holycity Indonesia</strong>
+    </div>
+
+    <!-- Footer -->
+    <div style="border-top:1px solid #000;margin-top:50px;text-align:center;font-size:10pt;color:#555;padding-top:4px;">
+      PT Holycity Indonesia – www.holycity.co.id | Integrasi Sistem Bisnis Digital
+    </div>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

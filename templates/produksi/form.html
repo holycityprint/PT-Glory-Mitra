@@ -1,0 +1,212 @@
+{% extends "base.html" %}
+{% block content %}
+
+<!-- Import Font Premium -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&family=Plus+Jakarta+Sans:wght@500;600;700&display=swap" rel="stylesheet">
+
+<style>
+  /* --- CSS SCOPED --- */
+  .form-wrapper {
+    max-width: 900px; /* Lebar ideal untuk form multi-kolom */
+    margin: 0 auto;
+    font-family: 'Inter', sans-serif;
+  }
+
+  .page-heading {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 700;
+    color: #0f172a;
+    letter-spacing: -0.5px;
+  }
+
+  .card-form {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    padding: 2.5rem;
+    box-shadow: 0 4px 20px -5px rgba(0, 0, 0, 0.05);
+  }
+
+  .form-label {
+    font-weight: 600;
+    color: #334155;
+    font-size: 0.85rem;
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .form-control, .form-select {
+    border-radius: 10px;
+    padding: 0.7rem 1rem;
+    border: 1px solid #cbd5e1;
+    background-color: #f8fafc;
+    font-size: 0.95rem;
+    transition: all 0.2s;
+  }
+
+  .form-control:focus, .form-select:focus {
+    background-color: #fff;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+  }
+
+  .section-divider {
+    border-top: 1px dashed #e2e8f0;
+    margin: 1.5rem 0;
+    position: relative;
+  }
+  
+  .section-label {
+    position: absolute;
+    top: -10px;
+    left: 0;
+    background: white;
+    padding-right: 10px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  /* Button Styles */
+  .btn-primary-corp {
+    background-color: #0f172a;
+    border: none;
+    color: #fff;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 600;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    transition: 0.2s;
+  }
+  .btn-primary-corp:hover {
+    background-color: #1e293b;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.2);
+  }
+
+  .btn-secondary-corp {
+    background-color: #fff;
+    border: 1px solid #e2e8f0;
+    color: #64748b;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 600;
+  }
+  .btn-secondary-corp:hover { background: #f1f5f9; color: #334155; }
+
+</style>
+
+<div class="container py-4 form-wrapper">
+
+  <!-- Header -->
+  <div class="text-center mb-5">
+    <h2 class="page-heading mb-2">Input Data Produksi</h2>
+    <p class="text-muted">Isi formulir di bawah untuk mencatat data produksi harian secara manual.</p>
+  </div>
+
+  <!-- Form Card -->
+  <div class="card-form">
+    <form method="POST">
+      
+      <!-- SECTION 1: BAHAN & VENDOR -->
+      <div class="section-divider"><span class="section-label">Informasi Bahan</span></div>
+      
+      <div class="row g-4">
+        <div class="col-md-6">
+          <label class="form-label">
+            <i class="bi bi-shop text-primary"></i> Vendor / Supplier
+          </label>
+          <input type="text" name="vendor_bahan" class="form-control" placeholder="Contoh: Toko Textile Maju" required>
+        </div>
+        
+        <div class="col-md-6">
+          <label class="form-label">
+            <i class="bi bi-layers text-primary"></i> Jenis Bahan
+          </label>
+          <input type="text" name="jenis_bahan" class="form-control" placeholder="Contoh: Cotton Combed 30s">
+        </div>
+      </div>
+
+      <!-- SECTION 2: SPESIFIKASI -->
+      <div class="section-divider mt-5"><span class="section-label">Spesifikasi Teknis</span></div>
+
+      <div class="row g-4">
+        <div class="col-md-4">
+          <label class="form-label">
+            <i class="bi bi-tags text-primary"></i> Kategori Ukuran
+          </label>
+          <input type="text" name="kategori_ukuran" class="form-control" placeholder="Ex: Regular / Jumbo">
+        </div>
+        
+        <div class="col-md-4">
+          <label class="form-label">
+            <i class="bi bi-arrows-angle-expand text-primary"></i> Ukuran (Size)
+          </label>
+          <input type="text" name="ukuran" class="form-control" placeholder="Ex: XL">
+        </div>
+
+        <div class="col-md-4">
+          <label class="form-label">
+            <i class="bi bi-palette text-primary"></i> Metode Sablon
+          </label>
+          <input type="text" name="metode_sablon" class="form-control" placeholder="Ex: Plastisol / DTF">
+        </div>
+      </div>
+
+      <!-- SECTION 3: PROSES & STATUS -->
+      <div class="section-divider mt-5"><span class="section-label">Detail Proses</span></div>
+
+      <div class="row g-4">
+        <div class="col-md-6">
+          <label class="form-label">
+            <i class="bi bi-gear-wide-connected text-primary"></i> Tahap Produksi
+          </label>
+          <select name="tahap" class="form-select">
+            <option value="" disabled selected>Pilih Tahapan...</option>
+            <option value="Cutting">Cutting</option>
+            <option value="Sablon">Sablon</option>
+            <option value="Jahit">Jahit</option>
+            <option value="QC">Quality Control (QC)</option>
+            <option value="Packing">Packing</option>
+          </select>
+        </div>
+
+        <div class="col-md-6">
+          <label class="form-label">
+            <i class="bi bi-stopwatch text-primary"></i> Status Pengerjaan
+          </label>
+          <select name="status" class="form-select">
+            <option value="proses">Sedang Diproses</option>
+            <option value="selesai">Selesai</option>
+          </select>
+        </div>
+
+        <div class="col-12">
+          <label class="form-label">
+            <i class="bi bi-pencil-square text-primary"></i> Keterangan Tambahan
+          </label>
+          <textarea name="keterangan" class="form-control" rows="3" placeholder="Catatan khusus mengenai produksi ini..."></textarea>
+        </div>
+      </div>
+
+      <hr class="my-4" style="border-color: #f1f5f9;">
+
+      <!-- BUTTONS -->
+      <div class="d-flex justify-content-end gap-3">
+        <a href="{{ url_for('produksi.index') }}" class="btn-secondary-corp text-decoration-none">
+          Batal
+        </a>
+        <button type="submit" class="btn-primary-corp">
+          <i class="bi bi-save me-2"></i>Simpan Data
+        </button>
+      </div>
+
+    </form>
+  </div>
+</div>
+
+{% endblock %}

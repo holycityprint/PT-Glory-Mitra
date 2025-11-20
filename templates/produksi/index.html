@@ -1,0 +1,261 @@
+{% extends "base.html" %}
+{% block content %}
+
+<!-- Import Font Premium -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&family=Plus+Jakarta+Sans:wght@500;600;700&display=swap" rel="stylesheet">
+
+<style>
+  /* --- GLOBAL STYLES --- */
+  :root {
+    --font-head: 'Plus Jakarta Sans', sans-serif;
+    --font-body: 'Inter', sans-serif;
+    --primary-dark: #0f172a;
+    --border-light: #e2e8f0;
+    --muted: #64748b;
+  }
+
+  .page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+  }
+
+  .title-text {
+    font-family: var(--font-head);
+    font-weight: 700;
+    color: var(--primary-dark);
+    margin: 0;
+  }
+
+  /* --- CLEAN CARD --- */
+  .card-clean {
+    background: #fff;
+    border: 1px solid var(--border-light);
+    border-radius: 16px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02);
+    overflow: hidden;
+  }
+
+  /* --- MODERN TABLE --- */
+  .table-responsive {
+    overflow-x: auto;
+  }
+
+  .table-modern {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: var(--font-body);
+  }
+
+  .table-modern thead th {
+    background-color: #f8fafc;
+    color: var(--muted);
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid var(--border-light);
+    white-space: nowrap;
+  }
+
+  .table-modern tbody td {
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid #f1f5f9;
+    color: #334155;
+    vertical-align: middle;
+    font-size: 0.9rem;
+  }
+
+  .table-modern tr:hover td {
+    background-color: #f8fafc;
+  }
+
+  .table-modern tr:last-child td {
+    border-bottom: none;
+  }
+
+  /* --- THUMBNAIL --- */
+  .img-thumb {
+    width: 48px;
+    height: 48px;
+    border-radius: 8px;
+    object-fit: cover;
+    border: 1px solid var(--border-light);
+    background-color: #f1f5f9;
+  }
+
+  .placeholder-thumb {
+    width: 48px;
+    height: 48px;
+    border-radius: 8px;
+    background-color: #f1f5f9;
+    color: #94a3b8;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    border: 1px solid var(--border-light);
+  }
+
+  /* --- BUTTONS --- */
+  .btn-corp-primary {
+    background-color: var(--primary-dark);
+    color: white;
+    padding: 0.6rem 1.2rem;
+    border-radius: 8px;
+    font-weight: 600;
+    font-family: var(--font-head);
+    text-decoration: none;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    border: none;
+  }
+
+  .btn-corp-primary:hover {
+    background-color: #1e293b;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.15);
+    color: white;
+  }
+
+  .btn-action {
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    text-decoration: none;
+    transition: 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .btn-action-view {
+    background: #eff6ff;
+    color: #2563eb;
+    border: 1px solid #dbeafe;
+  }
+  .btn-action-view:hover { background: #2563eb; color: white; border-color: #2563eb; }
+
+  .btn-action-delete {
+    background: #fff;
+    color: #ef4444;
+    border: 1px solid #fee2e2;
+  }
+  .btn-action-delete:hover { background: #ef4444; color: white; border-color: #ef4444; }
+
+  /* --- EMPTY STATE --- */
+  .empty-state {
+    padding: 4rem 2rem;
+    text-align: center;
+  }
+</style>
+
+<div class="container-fluid px-md-4 py-4">
+
+  <!-- HEADER SECTION -->
+  <div class="page-header">
+    <div>
+      <h6 class="text-uppercase text-muted small fw-bold mb-1" style="letter-spacing: 1px;">Manajemen Produksi</h6>
+      <h2 class="title-text">Daftar Artikel</h2>
+    </div>
+    <div>
+      <a href="{{ url_for('produksi.tambah_artikel') }}" class="btn-corp-primary">
+        <i class="bi bi-plus-lg"></i> Buat Artikel Baru
+      </a>
+    </div>
+  </div>
+
+  <!-- MAIN CARD -->
+  <div class="card-clean">
+    
+    {% if articles and articles|length > 0 %}
+    <div class="table-responsive">
+      <table class="table-modern">
+        <thead>
+          <tr>
+            <th width="80">Gambar</th>
+            <th>Nama Artikel / Model</th>
+            <th>Tanggal Input</th>
+            <th>Catatan</th>
+            <th class="text-end pe-4">Aksi</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for a in articles %}
+          <tr>
+            <!-- Thumbnail Gambar -->
+            <td>
+              {% if a.gambar %}
+                <img src="{{ url_for('static', filename='uploads/' + a.gambar) }}" class="img-thumb" alt="img">
+              {% else %}
+                <div class="placeholder-thumb">
+                  <i class="bi bi-image"></i>
+                </div>
+              {% endif %}
+            </td>
+
+            <!-- Nama Artikel -->
+            <td>
+              <div class="fw-bold text-dark" style="font-family: 'Plus Jakarta Sans'; font-size: 0.95rem;">
+                {{ a.nama_artikel }}
+              </div>
+              <div class="small text-muted" style="font-size: 0.75rem;">ID: #{{ a.id }}</div>
+            </td>
+
+            <!-- Tanggal -->
+            <td class="text-muted">
+              <i class="bi bi-calendar3 me-1"></i> {{ a.tanggal_dibuat.strftime('%d %b %Y') }}
+              <br>
+              <small style="font-size: 0.7rem;">{{ a.tanggal_dibuat.strftime('%H:%M WIB') }}</small>
+            </td>
+
+            <!-- Keterangan -->
+            <td style="max-width: 300px;">
+              <span class="text-secondary small text-truncate d-block">
+                {{ a.keterangan or '-' }}
+              </span>
+            </td>
+
+            <!-- Aksi -->
+            <td class="text-end pe-4">
+              <a href="{{ url_for('produksi.detail_artikel', artikel_id=a.id) }}" class="btn-action btn-action-view me-1">
+                <i class="bi bi-eye-fill"></i> Detail
+              </a>
+
+              <form action="{{ url_for('produksi.hapus_artikel', artikel_id=a.id) }}" 
+                    method="POST" style="display:inline;"
+                    onsubmit="return confirm('Hapus artikel ini? Data produksi tetap aman, hanya artikel yang dihapus.');">
+                <button type="submit" class="btn-action btn-action-delete">
+                  <i class="bi bi-trash"></i>
+                </button>
+              </form>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    
+    {% else %}
+    <!-- Empty State -->
+    <div class="empty-state">
+      <div class="mb-3 text-muted">
+        <i class="bi bi-box-seam" style="font-size: 3rem; opacity: 0.3;"></i>
+      </div>
+      <h5 class="fw-bold text-dark mb-2">Belum Ada Data Produksi</h5>
+      <p class="text-muted mb-4">Mulai dengan menambahkan artikel atau model pakaian baru.</p>
+      <a href="{{ url_for('produksi.tambah_artikel') }}" class="btn btn-outline-primary rounded-pill px-4">
+        <i class="bi bi-plus-lg me-1"></i> Tambah Artikel Pertama
+      </a>
+    </div>
+    {% endif %}
+
+  </div>
+</div>
+
+{% endblock %}

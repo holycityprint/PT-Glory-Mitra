@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+{% block content %}
+<style>
+  .form-container { max-width: 900px; margin: 0 auto; font-family: 'Inter', sans-serif; }
+  .card-form { background: #fff; border-radius: 16px; padding: 2rem; box-shadow: 0 4px 20px -5px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; }
+  .form-label { font-weight: 600; font-size: 0.85rem; color: #334155; }
+  .form-control, .form-select { border-radius: 8px; padding: 0.6rem 0.8rem; background: #f8fafc; border: 1px solid #cbd5e1; }
+  
+  /* Tabel Input Barang */
+  .table-input th { background: #f1f5f9; font-size: 0.8rem; text-transform: uppercase; }
+  .btn-remove { color: #ef4444; border: 1px solid #fee2e2; background: #fff; }
+  .btn-remove:hover { background: #ef4444; color: #fff; }
+</style>
+
+<div class="container py-4 form-container">
+  <div class="text-center mb-4">
+    <h2 class="fw-bold text-dark">Buat Surat Jalan (DO)</h2>
+    <p class="text-muted">Pilih barang dari gudang, stok akan otomatis berkurang saat disimpan.</p>
+  </div>
+
+  <div class="card-form">
+    <form method="POST" id="formSuratJalan">
+      
+      <!-- Info Surat -->
+      <div class="row g-3 mb-4">
+        <div class="col-md-6">
+          <label class="form-label">No. Surat Jalan (Otomatis)</label>
+          <input type="text" name="no_surat" value="{{ no_otomatis }}" class="form-control fw-bold text-primary" readonly>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Tanggal Pengiriman</label>
+          <input type="date" name="tanggal" value="{{ today }}" class="form-control" required>
+        </div>
+      </div>
+
+      <div class="row g-3 mb-4">
+        <div class="col-md-6">
+          <label class="form-label">Penerima / Toko Tujuan</label>
+          <input type="text" name="nama_penerima" class="form-control" required placeholder="Nama PT / Toko">
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Kurir / Driver</label>
+          <input type="text" name="nama_kurir" class="form-control" required>
+        </div>
+        <div class="col-md-12">
+          <label class="form-label">Alamat Lengkap</label>
+          <input type="text" name="alamat_tujuan" class="form-control" required>
+        </div>
+        <!-- Field tersembunyi untuk data lain agar simple -->
+        <input type="hidden" name="no_telp" value="-">
+        <input type="hidden" name="jenis_kendaraan" value="Mobil Box">
+        <input type="hidden" name="nopol_kendaraan" value="-">
+      </div>
+
+      <hr>
+
+      <!-- Input Barang Dinamis -->
+      <h6 class="fw-bold text-dark mb-3"><i class="bi bi-box-seam me-2"></i>Pilih Barang dari Gudang</h6>
+      
+      <table class="table table-bordered table-input" id="tabelBarang">
+        <thead>
+          <tr>
+            <th>Nama Barang (Stok Tersedia)</th>
+            <th width="150">Jumlah Kirim</th>
+            <th width="50">#</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Baris Pertama Default -->
+          <tr>
+            <td>
+              <select name="item_id[]" class="form-select" required>
+                <option value="" disabled selected>-- Pilih Barang --</option>
+                {% for item in stok_gudang %}
+                <option value="{{ item.id }}">
+                  {{ item.nama_item }} (Sisa: {{ item.stok }} {{ item.satuan }})
+                </option>
+                {% endfor %}
+              </select>
+            </td>
+            <td>
+              <input type="number" step="any" name="qty[]" class="form-control" placeholder="0" required>
+            </td>
+            <td>
+              <button type="button" class="btn btn-sm btn-remove" disabled><i class="bi bi-trash"></i></button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <button type="button" class="btn btn-sm btn-outline-primary mb-4" onclick="tambahBaris()">
+        <i class="bi bi-plus-lg me-1"></i> Tambah Barang Lain
+      </button>
+
+      <div class="mb-4">
+        <label class="form-label">Catatan / Nopol Kendaraan</label>
+        <input type="text" name="catatan" class="form-control" placeholder="Contoh: Nopol B 1234 CD">
+      </div>
+
+      <div class="d-flex justify-content-end gap-2">
+        <a href="{{ url_for('pengiriman.index') }}" class="btn btn-light border">Batal</a>
+        <button type="submit" class="btn btn-dark px-4 fw-bold">
+          <i class="bi bi-printer me-2"></i>Simpan & Kurangi Stok
+        </button>
+      </div>
+
+    </form>
+  </div>
+</div>
+
+<!-- Script JavaScript untuk Tambah Baris -->
+<script>
+  function tambahBaris() {
+    const table = document.getElementById('tabelBarang').getElementsByTagName('tbody')[0];
+    const newRow = table.rows[0].cloneNode(true);
+    
+    // Reset nilai input di baris baru
+    newRow.querySelector('input').value = '';
+    newRow.querySelector('select').value = '';
+    
+    // Aktifkan tombol hapus
+    newRow.querySelector('.btn-remove').disabled = false;
+    newRow.querySelector('.btn-remove').onclick = function() {
+      this.closest('tr').remove();
+    };
+
+    table.appendChild(newRow);
+  }
+</script>
+{% endblock %}

@@ -1,0 +1,207 @@
+{% extends "base.html" %}
+{% block content %}
+
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700&display=swap" rel="stylesheet">
+
+<style>
+  /* TABS STYLE */
+  .nav-tabs { border-bottom: 1px solid #e2e8f0; }
+  .nav-tabs .nav-link { 
+    color: #64748b; 
+    font-weight: 600; 
+    border: none; 
+    border-bottom: 3px solid transparent; 
+    padding: 12px 24px; 
+    transition: all 0.2s;
+  }
+  .nav-tabs .nav-link:hover { color: #3b82f6; background: rgba(59, 130, 246, 0.05); }
+  .nav-tabs .nav-link.active { 
+    color: #0f172a; 
+    border-bottom: 3px solid #3b82f6; 
+    background: transparent; 
+  }
+  
+  /* CARD & TABLE */
+  .card-clean { 
+    background: #fff; 
+    border: 1px solid #e2e8f0; 
+    border-radius: 0 0 16px 16px; 
+    border-top: none; 
+    box-shadow: 0 4px 20px rgba(0,0,0,0.02); 
+  }
+  .table-modern th { 
+    background: #f8fafc; 
+    font-size: 0.75rem; 
+    text-transform: uppercase; 
+    letter-spacing: 0.5px; 
+    padding: 1rem; 
+    border-bottom: 1px solid #e2e8f0;
+    color: #64748b;
+  }
+  .table-modern td { 
+    padding: 1rem; 
+    vertical-align: middle; 
+    border-bottom: 1px solid #f1f5f9;
+    color: #334155;
+  }
+  .stok-badge { 
+    background: #dbeafe; 
+    color: #1e40af; 
+    padding: 6px 12px; 
+    border-radius: 20px; 
+    font-weight: 700; 
+    font-size: 0.9rem; 
+  }
+</style>
+
+<div class="container-fluid px-4 py-4">
+  
+  <!-- HEADER -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h6 class="text-uppercase text-muted small fw-bold mb-1" style="letter-spacing: 1px;">Logistik & Inventory</h6>
+      <h2 class="fw-bold text-dark" style="font-family: 'Plus Jakarta Sans';">Stok Gudang</h2>
+    </div>
+    <div class="d-flex gap-2">
+      <a href="{{ url_for('pengiriman.index') }}" class="btn btn-outline-dark rounded-pill px-4">
+        <i class="bi bi-truck me-2"></i> Kirim Barang
+      </a>
+      <a href="{{ url_for('pembelian.tambah') }}" class="btn btn-primary rounded-pill px-4">
+        <i class="bi bi-plus-lg me-2"></i> Beli Stok Baru
+      </a>
+    </div>
+  </div>
+
+  <!-- TAB NAVIGASI GUDANG -->
+  <ul class="nav nav-tabs" id="gudangTabs">
+    <li class="nav-item">
+      <a class="nav-link {% if active_lokasi == 'Gudang Utama' %}active{% endif %}" href="{{ url_for('gudang.index', lokasi='Gudang Utama') }}">
+        <i class="bi bi-building-check me-2"></i> Gudang Utama (PT Glory)
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link {% if active_lokasi == 'Gudang Episode' %}active{% endif %}" href="{{ url_for('gudang.index', lokasi='Gudang Episode') }}">
+        <i class="bi bi-shop-window me-2"></i> Gudang 2 (Episode)
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link {% if active_lokasi == 'Gudang Cargo FO' %}active{% endif %}" href="{{ url_for('gudang.index', lokasi='Gudang Cargo FO') }}">
+        <i class="bi bi-box-seam-fill me-2"></i> Gudang 3 (Cargo FO)
+      </a>
+    </li>
+  </ul>
+
+  <!-- ISI TABEL -->
+  <div class="card-clean p-0">
+    <div class="table-responsive">
+      <table class="table w-100 mb-0 table-modern">
+        <thead>
+          <tr>
+            <th class="ps-4">Nama Item / Barang</th>
+            <th>Kategori</th>
+            <th>Total Stok</th>
+            <th>Satuan</th>
+            <th>Terakhir Update</th>
+            <th class="text-center pe-4">Aksi (Distribusi)</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in items %}
+          <tr>
+            <td class="ps-4 fw-bold text-dark">{{ item.nama_item }}</td>
+            <td><span class="badge bg-light text-dark border">{{ item.kategori or 'Umum' }}</span></td>
+            <td>
+              <span class="fw-bold fs-6 {% if item.stok < 10 %}text-danger{% else %}text-success{% endif %}">
+                {{ item.stok }}
+              </span>
+            </td>
+            <td class="text-muted small fw-bold">{{ item.satuan }}</td>
+            <td class="text-muted small">
+              <i class="bi bi-clock me-1"></i> {{ item.last_updated.strftime('%d/%m/%Y %H:%M') }}
+            </td>
+            <td class="text-center pe-4">
+              <button class="btn btn-sm btn-outline-primary rounded-pill px-3" 
+                      data-bs-toggle="modal" data-bs-target="#modalDistribusi{{ item.id }}">
+                <i class="bi bi-arrow-left-right me-1"></i> Pindah / Jual
+              </button>
+
+              <!-- MODAL DISTRIBUSI (POPUP) -->
+              <div class="modal fade text-start" id="modalDistribusi{{ item.id }}" tabindex="-1">
+                <div class="modal-dialog">
+                  <div class="modal-content border-0 shadow-lg rounded-4">
+                    <div class="modal-header border-bottom-0 pb-0">
+                      <h5 class="modal-title fw-bold ps-2">Distribusi Stok</h5>
+                      <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    
+                    <form action="{{ url_for('gudang.distribusi') }}" method="POST">
+                      <div class="modal-body p-4">
+                        <input type="hidden" name="item_id" value="{{ item.id }}">
+                        
+                        <div class="alert alert-light border mb-3">
+                          <small class="text-muted d-block">Barang yang dipilih:</small>
+                          <strong class="text-dark">{{ item.nama_item }}</strong>
+                          <div class="mt-1 badge bg-primary bg-opacity-10 text-primary">
+                            Sisa Stok: {{ item.stok }} {{ item.satuan }}
+                          </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                          <label class="fw-bold small mb-1">Tujuan Pengiriman</label>
+                          <select name="tujuan" class="form-select" required>
+                            <option value="" disabled selected>-- Pilih Tujuan --</option>
+                            
+                            <!-- Opsi Pindah Gudang -->
+                            {% if active_lokasi != 'Gudang Utama' %}
+                              <option value="Gudang Utama">Kembali ke Gudang Utama</option>
+                            {% endif %}
+                            {% if active_lokasi != 'Gudang Episode' %}
+                              <option value="Gudang Episode">Transfer ke Gudang Episode</option>
+                            {% endif %}
+                            {% if active_lokasi != 'Gudang Cargo FO' %}
+                              <option value="Gudang Cargo FO">Transfer ke Cargo FO</option>
+                            {% endif %}
+                            
+                            <!-- Opsi Jual Putus -->
+                            <option value="Jual Putus" class="fw-bold text-danger">🔴 Penjualan Putus (Keluar)</option>
+                          </select>
+                        </div>
+
+                        <div class="mb-3">
+                          <label class="fw-bold small mb-1">Jumlah</label>
+                          <div class="input-group">
+                            <input type="number" name="jumlah" class="form-control" step="any" max="{{ item.stok }}" placeholder="0" required>
+                            <span class="input-group-text">{{ item.satuan }}</span>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="modal-footer border-top-0 pt-0 pe-4 pb-4">
+                        <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Batal</button>
+                        <button type="submit" class="btn btn-primary rounded-pill px-4">Konfirmasi</button>
+                      </div>
+                    </form>
+                  </div>
+                </div>
+              </div>
+              <!-- END MODAL -->
+
+            </td>
+          </tr>
+          {% else %}
+          <tr>
+            <td colspan="6" class="text-center py-5 text-muted">
+              <div class="mb-3 bg-light rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
+                <i class="bi bi-box-seam fs-1 text-secondary"></i>
+              </div>
+              <h6 class="fw-bold text-dark">Gudang Kosong</h6>
+              <p class="small text-muted">Belum ada stok di lokasi ini.</p>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

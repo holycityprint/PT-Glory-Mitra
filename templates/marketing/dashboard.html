@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+  <h3>📈 Dashboard Marketing</h3>
+  <p>Halo {{ current_user.username }}, ini area Marketing.</p>
+
+  <div class="row">
+    <div class="col-md-4">
+      <div class="card shadow-sm mb-3">
+        <div class="card-body">
+          <h5 class="card-title">Total Leads</h5>
+          <p class="display-6">{{ leads|length if leads else 0 }}</p>
+          <button class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addProspectModal">
+            <i class="bi bi-plus-circle"></i> Tambah Prospek
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-8">
+      <div class="card shadow-sm mb-3">
+        <div class="card-body">
+          <h5 class="card-title">Informasi Campaign</h5>
+          <p>Data campaign dan progress-nya akan ditampilkan di sini 📊</p>
+          <a href="{{ url_for('marketing.marketing_campaigns') }}" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-megaphone"></i> Kelola Campaign
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 🔹 Modal Tambah Prospek -->
+<div class="modal fade" id="addProspectModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form action="{{ url_for('marketing.add_prospect') }}" method="POST">
+        <div class="modal-header">
+          <h5 class="modal-title">Tambah Prospek Baru</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-2">
+            <label>Nama Klien</label>
+            <input type="text" name="client_name" class="form-control" required>
+          </div>
+          <div class="mb-2">
+            <label>Perusahaan</label>
+            <input type="text" name="company" class="form-control">
+          </div>
+          <div class="mb-2">
+            <label>No. Kontak</label>
+            <input type="text" name="contact" class="form-control">
+          </div>
+          <div class="mb-2">
+            <label>Email</label>
+            <input type="email" name="email" class="form-control">
+          </div>
+          <div class="mb-2">
+            <label>Sumber</label>
+            <input type="text" name="source" class="form-control" placeholder="Instagram, Website, Referensi, dll">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+          <button class="btn btn-primary" type="submit">Simpan</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

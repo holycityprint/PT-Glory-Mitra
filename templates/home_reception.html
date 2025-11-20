@@ -1,0 +1,274 @@
+{% extends "base.html" %}
+{% block content %}
+
+<!-- 1. IMPORT FONT PREMIUM -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+  /* --- TYPOGRAPHY & BASE --- */
+  :root {
+    --font-heading: 'Plus Jakarta Sans', sans-serif;
+    --font-body: 'Inter', sans-serif;
+    --primary-gradient: linear-gradient(135deg, #0f172a 0%, #334155 100%);
+    --accent-color: #3b82f6;
+  }
+
+  body {
+    background-color: #f8fafc;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-heading);
+    letter-spacing: -0.025em;
+  }
+
+  p, span, div {
+    font-family: var(--font-body);
+  }
+
+  /* --- HERO SECTION --- */
+  .hero-wrapper {
+    background: var(--primary-gradient);
+    border-radius: 24px;
+    padding: 3.5rem 3rem;
+    color: white;
+    margin-bottom: 3.5rem;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 20px 40px -10px rgba(15, 23, 42, 0.3);
+  }
+
+  .hero-glow {
+    position: absolute;
+    width: 400px; height: 400px;
+    background: radial-gradient(circle, rgba(59, 130, 246, 0.3) 0%, rgba(0,0,0,0) 70%);
+    top: -100px; right: -50px;
+    border-radius: 50%;
+    pointer-events: none;
+  }
+
+  .hero-title {
+    font-weight: 800;
+    font-size: 2.2rem;
+    margin-bottom: 0.5rem;
+    background: linear-gradient(to right, #fff, #cbd5e1);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .hero-subtitle {
+    font-weight: 300;
+    font-size: 1.1rem;
+    color: #94a3b8;
+    max-width: 600px;
+  }
+
+  /* --- MENU CARDS --- */
+  .menu-card {
+    display: flex;
+    flex-direction: column;
+    background: #ffffff;
+    border-radius: 20px;
+    padding: 2rem;
+    height: 100%;
+    text-decoration: none;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    border: 1px solid rgba(226, 232, 240, 0.6);
+  }
+
+  .menu-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.08);
+    border-color: white;
+  }
+
+  .icon-container {
+    width: 64px; height: 64px;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.8rem;
+    margin-bottom: 1.5rem;
+    transition: all 0.3s ease;
+  }
+  
+  .menu-card:hover .icon-container {
+    transform: scale(1.05);
+  }
+
+  .card-head {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin-bottom: 0.75rem;
+  }
+
+  .card-text {
+    font-size: 0.925rem;
+    color: #64748b;
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+    flex-grow: 1;
+  }
+
+  .action-link {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--accent-color);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    opacity: 0.8;
+    transition: 0.2s;
+  }
+
+  .menu-card:hover .action-link { opacity: 1; gap: 10px; }
+
+  /* --- COLOR THEMES --- */
+  .theme-blue { background: #eff6ff; color: #2563eb; }
+  .theme-green { background: #f0fdf4; color: #16a34a; }
+  .theme-orange { background: #fff7ed; color: #ea580c; }
+  .theme-purple { background: #faf5ff; color: #9333ea; }
+  .theme-cyan { background: #ecfeff; color: #0891b2; }
+  .theme-slate { background: #f8fafc; color: #475569; }
+  /* ✅ Warna Baru untuk Pengiriman */
+  .theme-rose { background: #fff1f2; color: #e11d48; } 
+
+</style>
+
+<div class="container-fluid px-lg-5 py-4">
+
+  <!-- HERO WELCOME -->
+  <div class="hero-wrapper">
+    <div class="hero-glow"></div>
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-end relative" style="z-index: 2;">
+      <div>
+        <h6 class="text-uppercase tracking-widest mb-2" style="font-size: 0.75rem; letter-spacing: 2px; color: #60a5fa;">
+          Enterprise Portal
+        </h6>
+        <h1 class="hero-title">Selamat Datang, {{ current_user.username|title }}</h1>
+        <p class="hero-subtitle">Akses seluruh modul manajemen perusahaan dalam satu dashboard terintegrasi.</p>
+      </div>
+      
+      <div class="text-md-end mt-4 mt-md-0">
+        <div style="font-family: 'Inter'; font-weight: 300; opacity: 0.8;">
+          {{ now().strftime('%A, %d %B %Y') }}
+        </div>
+        <div class="display-6 fw-bold" style="font-family: var(--font-heading);">
+          <span id="realtime-clock">00:00</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MENU GRID -->
+  <div class="row g-4">
+
+    <!-- 1. HRD -->
+    <div class="col-12 col-md-6 col-lg-4 col-xl-3">
+      <a href="{{ url_for('hrd.dashboard') }}" class="menu-card">
+        <div class="icon-container theme-blue">
+          <i class="bi bi-people"></i>
+        </div>
+        <div class="card-head">Human Resources</div>
+        <p class="card-text">Sentralisasi data karyawan, rekrutmen, payroll, dan analisis kinerja tim.</p>
+        <div class="action-link">Akses Modul <i class="bi bi-arrow-right"></i></div>
+      </a>
+    </div>
+
+    <!-- 2. Accounting -->
+    <div class="col-12 col-md-6 col-lg-4 col-xl-3">
+      <a href="{{ url_for('accounting.dashboard') }}" class="menu-card">
+        <div class="icon-container theme-green">
+          <i class="bi bi-graph-up"></i>
+        </div>
+        <div class="card-head">Accounting</div>
+        <p class="card-text">Laporan keuangan real-time, manajemen arus kas, dan neraca perusahaan.</p>
+        <div class="action-link">Akses Modul <i class="bi bi-arrow-right"></i></div>
+      </a>
+    </div>
+
+    <!-- 3. Marketing -->
+    <div class="col-12 col-md-6 col-lg-4 col-xl-3">
+      <a href="{{ url_for('marketing.marketing_dashboard') }}" class="menu-card">
+        <div class="icon-container theme-orange">
+          <i class="bi bi-pie-chart"></i>
+        </div>
+        <div class="card-head">Marketing CRM</div>
+        <p class="card-text">Pipeline penjualan, tracking prospek (leads), dan manajemen kampanye.</p>
+        <div class="action-link">Akses Modul <i class="bi bi-arrow-right"></i></div>
+      </a>
+    </div>
+
+    <!-- 4. Produksi -->
+    <div class="col-12 col-md-6 col-lg-4 col-xl-3">
+      <a href="{{ url_for('produksi.index') }}" class="menu-card">
+        <div class="icon-container theme-purple">
+          <i class="bi bi-box-seam"></i>
+        </div>
+        <div class="card-head">Produksi</div>
+        <p class="card-text">Monitoring alur produksi artikel, kontrol kualitas, dan status pengerjaan.</p>
+        <div class="action-link">Akses Modul <i class="bi bi-arrow-right"></i></div>
+      </a>
+    </div>
+
+    <!-- 5. Purchasing -->
+    <div class="col-12 col-md-6 col-lg-4 col-xl-3">
+      <a href="{{ url_for('pembelian.index') }}" class="menu-card">
+        <div class="icon-container theme-cyan">
+          <i class="bi bi-cart3"></i>
+        </div>
+        <div class="card-head">Purchasing</div>
+        <p class="card-text">Pengadaan bahan baku, manajemen vendor, dan inventaris stok masuk.</p>
+        <div class="action-link">Akses Modul <i class="bi bi-arrow-right"></i></div>
+      </a>
+    </div>
+
+    <!-- 6. ✅ Logistik & Pengiriman (BARU) -->
+    <div class="col-12 col-md-6 col-lg-4 col-xl-3">
+      <a href="{{ url_for('pengiriman.index') }}" class="menu-card">
+        <div class="icon-container theme-rose">
+          <i class="bi bi-truck"></i>
+        </div>
+        <div class="card-head">Pengiriman</div>
+        <p class="card-text">Buat surat jalan (DO), manajemen kurir, dan pelacakan distribusi barang.</p>
+        <div class="action-link">Akses Modul <i class="bi bi-arrow-right"></i></div>
+      </a>
+    </div>
+
+    <!-- 7. Absensi -->
+    <div class="col-12 col-md-6 col-lg-4 col-xl-3">
+      <a href="{{ url_for('absensi.absensi_page') }}" class="menu-card">
+        <div class="icon-container theme-slate">
+          <i class="bi bi-fingerprint"></i>
+        </div>
+        <div class="card-head">E-Absensi</div>
+        <p class="card-text">Pencatatan kehadiran digital berbasis lokasi dan riwayat log harian.</p>
+        <div class="action-link">Akses Modul <i class="bi bi-arrow-right"></i></div>
+      </a>
+    </div>
+
+  </div>
+
+  <!-- FOOTER INFO -->
+  <div class="mt-5 pt-4 border-top text-center">
+    <p class="text-muted small" style="font-family: var(--font-body);">
+      <i class="bi bi-shield-lock-fill me-1"></i> Secure Enterprise Connection &bull; PT Glory Mitra Indo v2.0
+    </p>
+  </div>
+
+</div>
+
+<script>
+  // Jam Realtime
+  setInterval(() => {
+    const now = new Date();
+    document.getElementById('realtime-clock').innerText = 
+      now.toLocaleTimeString('id-ID', {hour: '2-digit', minute:'2-digit'});
+  }, 1000);
+</script>
+
+{% endblock %}

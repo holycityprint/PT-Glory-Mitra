@@ -1,0 +1,187 @@
+{% extends "base.html" %}
+{% block content %}
+
+<!-- Import Font Premium -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&family=Plus+Jakarta+Sans:wght@500;600;700&display=swap" rel="stylesheet">
+
+<style>
+  /* --- GLOBAL STYLES --- */
+  :root {
+    --font-head: 'Plus Jakarta Sans', sans-serif;
+    --font-body: 'Inter', sans-serif;
+    --primary-dark: #0f172a;
+    --border-light: #e2e8f0;
+  }
+
+  /* --- CLEAN CARD --- */
+  .card-clean {
+    background: #fff;
+    border: 1px solid var(--border-light);
+    border-radius: 16px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02);
+    overflow: hidden;
+  }
+
+  /* --- MODERN TABLE --- */
+  .table-modern {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: var(--font-body);
+  }
+
+  .table-modern thead th {
+    background-color: #f8fafc;
+    color: #64748b;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid var(--border-light);
+    white-space: nowrap;
+  }
+
+  .table-modern tbody td {
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid #f1f5f9;
+    color: #334155;
+    vertical-align: middle;
+    font-size: 0.9rem;
+  }
+
+  .table-modern tr:hover td {
+    background-color: #f8fafc;
+  }
+
+  /* --- BUTTONS --- */
+  .btn-corp-primary {
+    background-color: var(--primary-dark);
+    color: white;
+    padding: 0.6rem 1.2rem;
+    border-radius: 8px;
+    font-weight: 600;
+    font-family: var(--font-head);
+    text-decoration: none;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    border: none;
+  }
+
+  .btn-corp-primary:hover {
+    background-color: #1e293b;
+    transform: translateY(-1px);
+    color: white;
+  }
+
+  .btn-corp-outline {
+    background-color: white;
+    border: 1px solid #cbd5e1;
+    color: #475569;
+    padding: 0.6rem 1.2rem;
+    border-radius: 8px;
+    font-weight: 600;
+    font-family: var(--font-head);
+    text-decoration: none;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .btn-corp-outline:hover {
+    background-color: #f1f5f9;
+    color: #1e293b;
+  }
+</style>
+
+<div class="container-fluid px-md-4 py-4">
+
+  <!-- HEADER SECTION -->
+  <div class="d-flex justify-content-between align-items-end mb-4">
+    <div>
+      <h6 class="text-uppercase text-muted small fw-bold mb-1" style="letter-spacing: 1px;">Modul Purchasing</h6>
+      <h2 class="fw-bold m-0 text-dark" style="font-family: 'Plus Jakarta Sans';">Riwayat Pembelian</h2>
+    </div>
+    <div class="d-flex gap-2">
+      <!-- Tombol ke Gudang -->
+      <a href="{{ url_for('gudang.index') }}" class="btn-corp-outline">
+        <i class="bi bi-box-seam"></i> Cek Stok Gudang
+      </a>
+      <!-- Tombol Tambah -->
+      <a href="{{ url_for('pembelian.tambah') }}" class="btn-corp-primary">
+        <i class="bi bi-cart-plus"></i> Input Pembelian Baru
+      </a>
+    </div>
+  </div>
+
+  <!-- MAIN CARD -->
+  <div class="card-clean">
+    <div class="table-responsive">
+      <table class="table-modern w-100">
+        <thead>
+          <tr>
+            <th>Tanggal</th>
+            <th>Nama Bahan</th>
+            <th>Toko / Supplier</th>
+            <th>Jumlah</th>
+            <th>Harga Satuan</th>
+            <th>Total Harga</th>
+            <th>Ket</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for p in purchases %}
+          <tr>
+            <!-- Tanggal -->
+            <td class="text-muted">
+              {{ p.tanggal_beli.strftime('%d-%m-%Y') }}<br>
+              <small style="font-size: 0.7rem;">{{ p.tanggal_beli.strftime('%H:%M') }}</small>
+            </td>
+
+            <!-- Nama Bahan -->
+            <td>
+              <span class="fw-bold text-dark">{{ p.nama_bahan }}</span>
+            </td>
+
+            <!-- Toko -->
+            <td>{{ p.nama_toko or '-' }}</td>
+
+            <!-- Jumlah -->
+            <td>
+              <span class="badge bg-light text-dark border px-2 py-1">
+                {{ p.jumlah }} {{ p.satuan }}
+              </span>
+            </td>
+
+            <!-- Harga Satuan -->
+            <td>
+              Rp {{ "{:,.0f}".format(p.harga_satuan) }}
+            </td>
+
+            <!-- Total Harga -->
+            <td class="fw-bold text-success">
+              Rp {{ "{:,.0f}".format(p.total_harga) }}
+            </td>
+
+            <!-- Keterangan -->
+            <td class="text-muted small text-truncate" style="max-width: 150px;">
+              {{ p.keterangan or '-' }}
+            </td>
+          </tr>
+          {% else %}
+          <tr>
+            <td colspan="7" class="text-center py-5">
+              <i class="bi bi-cart-x" style="font-size: 2rem; color: #cbd5e1;"></i>
+              <p class="text-muted mt-2">Belum ada data pembelian bahan.</p>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

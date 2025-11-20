@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% block title %}Data Karyawan{% endblock %}
+
+{% block content %}
+<h3 class="fw-bold text-primary mb-3">
+  <i class="bi bi-person-lines-fill me-2"></i>Data Karyawan
+</h3>
+
+<!-- 🔹 Form Tambah Karyawan -->
+<form action="{{ url_for('hrd.employee_add') }}" method="post"
+      class="card shadow-sm border-0 p-3 mb-4">
+  <div class="row g-3 align-items-end">
+    <div class="col-md-3">
+      <label class="form-label fw-semibold">Nama Karyawan</label>
+      <input type="text" name="name" class="form-control" placeholder="Nama lengkap" required>
+    </div>
+    <div class="col-md-3">
+      <label class="form-label fw-semibold">Departemen</label>
+      <input type="text" name="department" class="form-control" placeholder="Departemen">
+    </div>
+    <div class="col-md-3">
+      <label class="form-label fw-semibold">Posisi</label>
+      <input type="text" name="position" class="form-control" placeholder="Posisi / Jabatan">
+    </div>
+    <div class="col-md-2">
+      <label class="form-label fw-semibold">Gaji (Rp)</label>
+      <input type="number" name="salary" step="0.01" class="form-control">
+    </div>
+    <div class="col-md-1 text-end">
+      <!-- Tombol lebih kecil & proporsional -->
+      <button class="btn btn-sm btn-primary mt-3 px-2" style="white-space: nowrap;">
+        <i class="bi bi-person-plus-fill"></i> Tambah
+      </button>
+    </div>
+  </div>
+</form>
+
+<!-- 🔹 Daftar Karyawan -->
+<div class="card shadow-sm border-0">
+  <div class="card-body table-responsive">
+    <table class="table table-hover align-middle text-center">
+      <thead class="table-primary">
+        <tr>
+          <th>#</th>
+          <th>Nama</th>
+          <th>Departemen</th>
+          <th>Posisi</th>
+          <th>Gaji (Rp)</th>
+          <th>Tanggal Bergabung</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for e in employees %}
+        <tr>
+          <td>{{ loop.index }}</td>
+          <td>{{ e.name }}</td>
+          <td>{{ e.department or '-' }}</td>
+          <td>{{ e.position or '-' }}</td>
+          <td class="text-end">{{ "{:,.0f}".format(e.salary or 0) }}</td>
+          <td>{{ e.join_date.strftime('%d/%m/%Y') }}</td>
+        </tr>
+        {% else %}
+        <tr><td colspan="6" class="text-muted">Belum ada data karyawan.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

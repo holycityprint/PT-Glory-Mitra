@@ -1,0 +1,250 @@
+{% extends "base.html" %}
+{% block content %}
+
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700&display=swap" rel="stylesheet">
+
+<style>
+  .nav-pills .nav-link { color: #64748b; font-weight: 600; border-radius: 8px; padding: 8px 16px; }
+  .nav-pills .nav-link.active { background-color: #0f172a; color: #fff; }
+  .card-option { border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; background: #f8fafc; margin-top: 15px; }
+  .form-label { font-size: 0.85rem; font-weight: 600; color: #334155; }
+</style>
+
+<h3 class="fw-bold text-primary mb-3">
+  Edit Tahap: 
+  {% if step.tahap == 'Pembelian Bahan' %}Pemakaian Bahan{% else %}{{ step.tahap }}{% endif %}
+</h3>
+
+<form method="POST" class="col-md-8">
+
+  {# =================== PEMAKAIAN BAHAN (REVISI TOTAL) =================== #}
+  {% if step.tahap == 'Pembelian Bahan' or step.tahap == 'Pemakaian Bahan' %}
+  
+  {% if step.is_posted %}
+    <!-- Tampilan Jika Stok Sudah Diambil -->
+    <div class="alert alert-success shadow-sm">
+      <div class="d-flex align-items-center">
+        <i class="bi bi-check-circle-fill fs-4 me-3"></i>
+        <div>
+          <h6 class="fw-bold mb-1">Stok Gudang Berhasil Diambil</h6>
+          <span class="small">Jumlah: {{ step.jumlah }} {{ step.satuan }} | Item: {{ step.warna_bahan }}</span>
+        </div>
+      </div>
+    </div>
+  {% else %}
+    
+    <!-- TAB PILIHAN -->
+    <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
+      <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="pills-kain-tab" data-bs-toggle="pill" data-bs-target="#pills-kain" type="button" role="tab" onclick="setSumber('kain_gudang')">
+          <i class="bi bi-scissors me-1"></i> Ambil Kain (Roll/Meter)
+        </button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="pills-kaos-tab" data-bs-toggle="pill" data-bs-target="#pills-kaos" type="button" role="tab" onclick="setSumber('kaos_gudang')">
+          <i class="bi bi-box-seam me-1"></i> Ambil Kaos Polos
+        </button>
+      </li>
+    </ul>
+
+    <!-- Input Hidden untuk menyimpan pilihan tab -->
+    <input type="hidden" name="sumber_bahan" value="kain_gudang" id="input_sumber">
+
+    <div class="tab-content" id="pills-tabContent">
+      
+      <!-- TAB 1: AMBIL KAIN DARI GUDANG -->
+      <div class="tab-pane fade show active" id="pills-kain" role="tabpanel">
+        <div class="card-option border-primary bg-white">
+          <div class="alert alert-info small py-2 mb-3">
+            <i class="bi bi-info-circle me-1"></i> Pilih stok kain dari gudang. Stok akan otomatis berkurang.
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Pilih Bahan Baku (Kain)</label>
+            <select name="warehouse_item_id" class="form-select">
+              <option value="" disabled selected>-- Pilih Stok Kain --</option>
+              {% for item in stok_gudang %}
+                <option value="{{ item.id }}">{{ item.nama_item }} (Sisa: {{ item.stok }} {{ item.satuan }})</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label">Jumlah Pemakaian</label>
+              <input type="number" step="any" name="jumlah_ambil" class="form-control" placeholder="0">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Detail Warna (Opsional)</label>
+              <input type="text" name="detail_warna" class="form-control" placeholder="Contoh: Hitam Jetblack">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 2: AMBIL KAOS POLOS DARI GUDANG -->
+      <div class="tab-pane fade" id="pills-kaos" role="tabpanel">
+        <div class="card-option border-success bg-white">
+          <div class="alert alert-success small py-2 mb-3 bg-opacity-10 text-success border-success">
+            <i class="bi bi-info-circle me-1"></i> Pilih stok kaos polos untuk diproses sablon.
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Pilih Kaos Polos</label>
+            <select name="warehouse_item_id" class="form-select">
+              <option value="" disabled selected>-- Pilih Stok Kaos --</option>
+              {% for item in stok_gudang %}
+                <option value="{{ item.id }}">{{ item.nama_item }} (Sisa: {{ item.stok }} {{ item.satuan }})</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="row g-3">
+            <div class="col-md-4">
+              <label class="form-label">Jumlah Ambil</label>
+              <input type="number" step="any" name="jumlah_ambil" class="form-control" placeholder="0">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Warna</label>
+              <input type="text" name="detail_warna" class="form-control" placeholder="Warna Kaos">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Ukuran</label>
+              <select name="detail_ukuran" class="form-select">
+                <option value="S">S</option>
+                <option value="M">M</option>
+                <option value="L">L</option>
+                <option value="XL">XL</option>
+                <option value="XXL">XXL</option>
+                <option value="All Size">All Size</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <script>
+      function setSumber(val) {
+        document.getElementById('input_sumber').value = val;
+        // Disable input di tab yang tidak aktif agar tidak bentrok (opsional, tapi aman)
+        const inputs = document.querySelectorAll('input[type="number"]');
+        inputs.forEach(i => i.value = ''); 
+      }
+    </script>
+
+  {% endif %} 
+  {# End of if step.is_posted #}
+
+
+  {# =================== CUTTING / JAHIT =================== #}
+  {% elif step.tahap in ['Cutting','Jahit'] %}
+  <p class="text-muted">Isi jumlah dan harga (Rp) per kategori ukuran</p>
+
+  {% set data_all = step.ukuran_data or {} %}
+  {% set data_jumlah = (data_all.get('jumlah') or data_all) if data_all else {} %}
+  {% set data_harga = (data_all.get('harga') or {}) if data_all else {} %}
+
+  {% set kategori_ukuran = {
+    'regular': ['S','M','L','XL'],
+    'big_size': ['2XL','3XL','4XL','5XL'],
+    'jumbo': ['6XL','7XL'],
+    'ladies': ['S','M','L','XL'],
+    'ladies_oversize': ['S','M','L','XL'],
+    'kids_4th': ['6','8','10','12'],
+    'ladies_junior': ['6','8','10','12','14'],
+    'oversize': ['S','M','L','XL'],
+    'kulot': ['S','M','L','XL'],
+    'celana_pendek_dewasa': ['S','M','L','XL']
+  } %}
+
+  {% for kategori, daftar in kategori_ukuran.items() %}
+  <h6 class="mt-4 text-primary text-capitalize">{{ kategori.replace('_',' ') }}</h6>
+  <table class="table table-sm table-bordered w-auto mb-3">
+    <thead class="table-light">
+      {% if step.tahap == 'Cutting' %}
+        <tr><th>Ukuran</th><th>Jumlah</th><th>Harga Cutting (Rp)</th></tr>
+      {% else %}
+        <tr><th>Ukuran</th><th>Jumlah</th><th>Harga Jahit (Rp)</th></tr>
+      {% endif %}
+    </thead>
+    <tbody>
+      {% for u in daftar %}
+      <tr>
+        <td>{{ u }}</td>
+        <td style="width:110px;">
+          <input type="number" step="1" min="0" name="{{ kategori }}_{{ u }}"
+                 value="{{ (data_jumlah.get(kategori) or {}).get(u, '')|int if (data_jumlah.get(kategori) or {}).get(u) else '' }}"
+                 class="form-control form-control-sm text-center">
+        </td>
+        <td style="width:160px;">
+          <div class="input-group input-group-sm">
+            <span class="input-group-text">Rp</span>
+            {% if step.tahap == 'Cutting' %}
+            <input type="number" step="1" min="0" name="harga_cutting_{{ kategori }}_{{ u }}"
+                   value="{{ (data_harga.get(kategori) or {}).get(u, '')|int if (data_harga.get(kategori) or {}).get(u) else '' }}"
+                   class="form-control text-end" placeholder="0">
+            {% else %}
+            <input type="number" step="1" min="0" name="harga_jahit_{{ kategori }}_{{ u }}"
+                   value="{{ (data_harga.get(kategori) or {}).get(u, '')|int if (data_harga.get(kategori) or {}).get(u) else '' }}"
+                   class="form-control text-end" placeholder="0">
+            {% endif %}
+          </div>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% endfor %}
+
+  {# =================== SABLON =================== #}
+  {% elif step.tahap == 'Sablon' %}
+  <div class="mb-3">
+    <label>Metode Sablon</label>
+    <select name="metode_sablon" class="form-select">
+      <option value="bordir" {% if step.metode_sablon=='bordir' %}selected{% endif %}>Bordir</option>
+      <option value="dablon" {% if step.metode_sablon=='dablon' %}selected{% endif %}>Dablon</option>
+      <option value="dtf" {% if step.metode_sablon=='dtf' %}selected{% endif %}>DTF</option>
+      <option value="polos" {% if step.metode_sablon=='polos' %}selected{% endif %}>Polos</option>
+    </select>
+  </div>
+
+  {# =================== KIRIM =================== #}
+  {% elif step.tahap == 'Kirim' %}
+  <div class="mb-3">
+    <label>Ekspedisi / Pengiriman</label>
+    <input type="text" name="ekspedisi" value="{{ step.ekspedisi or '' }}" class="form-control">
+  </div>
+  <div class="mb-3">
+    <label>Jumlah Dikirim</label>
+    <input type="number" step="1" name="jumlah" value="{{ step.jumlah|int if step.jumlah else '' }}" class="form-control">
+  </div>
+
+  {# =================== TAHAP UMUM LAIN =================== #}
+  {% else %}
+  <div class="mb-3">
+    <label>Jumlah</label>
+    <input type="number" step="1" name="jumlah" value="{{ step.jumlah|int if step.jumlah else '' }}" class="form-control">
+  </div>
+  {% endif %}
+
+  <div class="mb-3 mt-4">
+    <label>Status</label>
+    <select name="status" class="form-select">
+      <option value="proses" {% if step.status=='proses' %}selected{% endif %}>Proses</option>
+      <option value="selesai" {% if step.status=='selesai' %}selected{% endif %}>Selesai</option>
+    </select>
+  </div>
+
+  <div class="mb-3">
+    <label>Keterangan</label>
+    <textarea name="keterangan" rows="3" class="form-control">{{ step.keterangan or '' }}</textarea>
+  </div>
+
+  <button type="submit" class="btn btn-success">
+    <i class="bi bi-save"></i> Simpan
+  </button>
+  <a href="{{ url_for('produksi.detail_artikel', artikel_id=step.article_id) }}" class="btn btn-secondary">Kembali</a>
+</form>
+{% endblock %}

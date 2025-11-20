@@ -1,0 +1,194 @@
+{% extends "base.html" %}
+{% block content %}
+
+<!-- Import Font Premium -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&family=Plus+Jakarta+Sans:wght@500;600;700&display=swap" rel="stylesheet">
+
+<style>
+  /* --- GLOBAL VARIABLES & FONTS --- */
+  :root {
+    --font-head: 'Plus Jakarta Sans', sans-serif;
+    --font-body: 'Inter', sans-serif;
+    --primary-dark: #0f172a;
+    --primary-blue: #3b82f6;
+    --border-color: #e2e8f0;
+    --muted-text: #64748b;
+  }
+
+  /* --- CARD STYLE --- */
+  .card-clean {
+    background: #fff;
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px -1px rgba(0, 0, 0, 0.02);
+    overflow: hidden;
+  }
+
+  /* --- TABLE STYLE --- */
+  .table-classy {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: var(--font-body);
+  }
+
+  .table-classy thead th {
+    background-color: #f8fafc;
+    color: var(--muted-text);
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid var(--border-color);
+  }
+
+  .table-classy tbody td {
+    padding: 1.1rem 1.5rem;
+    border-bottom: 1px solid #f1f5f9;
+    color: #334155;
+    font-size: 0.9rem;
+    vertical-align: middle;
+  }
+
+  .table-classy tr:last-child td {
+    border-bottom: none;
+  }
+
+  .table-classy tr:hover td {
+    background-color: #f8fafc;
+  }
+
+  /* --- BADGES (PILLS) --- */
+  .badge-pill {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 10px;
+    border-radius: 99px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    line-height: 1;
+  }
+
+  .badge-pill.success { background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
+  .badge-pill.process { background: #fef9c3; color: #854d0e; border: 1px solid #fde047; }
+  .badge-pill.default { background: #f1f5f9; color: #475569; border: 1px solid #e2e8f0; }
+  
+  .dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; margin-right: 6px; }
+
+  /* --- BUTTONS --- */
+  .btn-corp {
+    background-color: var(--primary-dark);
+    color: white;
+    padding: 0.6rem 1.2rem;
+    border-radius: 8px;
+    font-weight: 500;
+    font-family: var(--font-head);
+    border: none;
+    text-decoration: none;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .btn-corp:hover {
+    background-color: #1e293b;
+    transform: translateY(-1px);
+    color: white;
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.15);
+  }
+
+  /* --- EMPTY STATE --- */
+  .empty-state {
+    padding: 4rem 2rem;
+    text-align: center;
+  }
+  .empty-icon {
+    font-size: 3rem;
+    color: #cbd5e1;
+    margin-bottom: 1rem;
+  }
+</style>
+
+<!-- HEADER SECTION -->
+<div class="d-flex justify-content-between align-items-end mb-4">
+  <div>
+    <h6 class="text-uppercase text-muted small fw-bold mb-1" style="letter-spacing: 1px;">Manajemen Produksi</h6>
+    <h2 class="fw-bold m-0 text-dark" style="font-family: 'Plus Jakarta Sans';">
+      {{ article.nama_artikel }}
+    </h2>
+  </div>
+  
+  <!-- Tombol Utama di Atas (UX Lebih Baik) -->
+  <a href="{{ url_for('produksi.tambah_step', article_id=article.id) }}" class="btn-corp">
+    <i class="bi bi-plus-lg"></i> Tambah Tahap Baru
+  </a>
+</div>
+
+<!-- CONTENT CARD -->
+<div class="card-clean">
+  
+  {% if article.steps|length == 0 %}
+    <!-- Tampilan Jika Data Kosong (Lebih Menarik) -->
+    <div class="empty-state">
+      <i class="bi bi-clipboard-x empty-icon"></i>
+      <h5 class="fw-bold text-dark">Belum Ada Alur Produksi</h5>
+      <p class="text-muted">Artikel ini belum memiliki tahapan produksi apapun.<br>Silakan tambahkan tahap baru untuk memulai.</p>
+      <a href="{{ url_for('produksi.tambah_step', article_id=article.id) }}" class="btn btn-outline-secondary mt-3">
+        <i class="bi bi-plus-lg"></i> Tambah Sekarang
+      </a>
+    </div>
+  {% else %}
+    
+    <!-- Tabel Modern -->
+    <div class="table-responsive">
+      <table class="table-classy">
+        <thead>
+          <tr>
+            <th class="ps-4">Tahap Produksi</th>
+            <th>Kategori</th>
+            <th>Ukuran</th>
+            <th>Jenis Bahan</th>
+            <th>Metode Sablon</th>
+            <th>Status</th>
+            <th class="text-end pe-4">Terakhir Update</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for st in article.steps %}
+          <tr>
+            <td class="ps-4 fw-bold text-dark">{{ st.tahap }}</td>
+            <td>{{ st.kategori or '-' }}</td>
+            <td><span class="font-monospace bg-light px-2 py-1 rounded border">{{ st.ukuran or '-' }}</span></td>
+            <td>{{ st.jenis_bahan or '-' }}</td>
+            <td>{{ st.metode_sablon or '-' }}</td>
+            
+            <!-- Status Badge Logic -->
+            <td>
+              {% if st.status|lower == 'selesai' %}
+                <span class="badge-pill success"><span class="dot"></span>Selesai</span>
+              {% elif st.status|lower == 'proses' %}
+                <span class="badge-pill process"><span class="dot"></span>Proses</span>
+              {% else %}
+                <span class="badge-pill default"><span class="dot"></span>{{ st.status|title or 'Pending' }}</span>
+              {% endif %}
+            </td>
+
+            <td class="text-end pe-4 text-muted small">
+              <i class="bi bi-clock me-1"></i> {{ st.tanggal_update.strftime('%d %b %Y') }}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% endif %}
+</div>
+
+<div class="mt-4">
+  <a href="{{ url_for('produksi.index') }}" class="text-decoration-none text-muted small fw-bold">
+    <i class="bi bi-arrow-left"></i> Kembali ke Daftar Artikel
+  </a>
+</div>
+
+{% endblock %}

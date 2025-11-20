@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}{{ title or "PT Glory Mitra Indo" }}{% endblock %}</title>
+
+  <!-- Bootstrap 5 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  
+  <!-- Bootstrap Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+  
+  <!-- Google Fonts (Plus Jakarta Sans - Standar BUMN Modern) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      /* Corporate Colors */
+      --sidebar-width: 280px;
+      --sidebar-bg: #0f172a;       /* Deep Navy */
+      --sidebar-bg-gradient: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
+      --primary-color: #2563eb;    /* Royal Blue */
+      --primary-hover: #1d4ed8;
+      --bg-body: #f1f5f9;          /* Very Light Slate */
+      --text-main: #334155;
+      --text-muted: #94a3b8;
+      --white: #ffffff;
+      --border-color: #e2e8f0;
+      
+      /* Font */
+      --font-main: 'Plus Jakarta Sans', sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-body);
+      font-family: var(--font-main);
+      font-size: 0.925rem;
+      color: var(--text-main);
+      overflow-x: hidden;
+    }
+
+    h1, h2, h3, h4, h5, h6 {
+      font-weight: 700;
+      letter-spacing: -0.025em;
+      color: #1e293b;
+    }
+
+    /* ===== 1. SIDEBAR (Corporate Style) ===== */
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: var(--sidebar-width);
+      height: 100vh;
+      background: var(--sidebar-bg-gradient);
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      z-index: 1050;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 4px 0 24px rgba(0,0,0,0.15);
+    }
+
+    /* Header Sidebar (Logo Area) */
+    .sidebar-header {
+      height: 70px;
+      display: flex;
+      align-items: center;
+      padding: 0 1.5rem;
+      background: rgba(255, 255, 255, 0.03);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .sidebar-brand {
+      color: #fff;
+      font-size: 1.1rem;
+      font-weight: 800;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      letter-spacing: 0.5px;
+    }
+
+    .brand-icon {
+      width: 32px;
+      height: 32px;
+      background: var(--primary-color);
+      color: white;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+      box-shadow: 0 0 15px rgba(37, 99, 235, 0.5);
+    }
+
+    /* Menu Area */
+    .sidebar-menu {
+      flex: 1;
+      padding: 1.5rem 1rem;
+      overflow-y: auto;
+    }
+    
+    .sidebar-menu::-webkit-scrollbar { width: 4px; }
+    .sidebar-menu::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 4px; }
+
+    .nav-title {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      color: #64748b;
+      font-weight: 700;
+      margin: 1.5rem 0 0.5rem 1rem;
+      letter-spacing: 1.2px;
+    }
+
+    .nav-link {
+      color: #cbd5e1;
+      padding: 0.8rem 1rem;
+      border-radius: 8px;
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      transition: all 0.2s ease;
+      font-weight: 500;
+      position: relative;
+      text-decoration: none;
+    }
+
+    .nav-link i { font-size: 1.1rem; color: #94a3b8; transition: 0.2s; }
+
+    .nav-link:hover {
+      color: #fff;
+      background-color: rgba(255, 255, 255, 0.05);
+    }
+    .nav-link:hover i { color: #fff; }
+
+    /* Active State (Enterprise Look) */
+    .nav-link.active {
+      color: #fff;
+      background: linear-gradient(90deg, rgba(37, 99, 235, 0.15), transparent);
+      border-left: 4px solid var(--primary-color);
+      border-radius: 4px 8px 8px 4px; /* Slight curve adjustment */
+    }
+    .nav-link.active i { color: var(--primary-color); }
+
+    /* User Profile Footer */
+    .sidebar-footer {
+      padding: 1rem;
+      background: rgba(0, 0, 0, 0.2);
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .user-card {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px;
+      border-radius: 10px;
+      transition: 0.2s;
+      background: rgba(255,255,255,0.03);
+    }
+
+    .user-avatar {
+      width: 38px;
+      height: 38px;
+      background: linear-gradient(135deg, #3b82f6, #2563eb);
+      color: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 1rem;
+      border: 2px solid rgba(255,255,255,0.1);
+    }
+
+    .user-info { flex: 1; overflow: hidden; }
+    .user-name { color: #fff; font-weight: 600; font-size: 0.85rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .user-role { color: #94a3b8; font-size: 0.7rem; text-transform: uppercase; font-weight: 600; }
+
+    .btn-logout-icon {
+      color: #ef4444;
+      padding: 6px;
+      border-radius: 6px;
+      transition: 0.2s;
+    }
+    .btn-logout-icon:hover { background: rgba(239, 68, 68, 0.15); }
+
+    /* ===== 2. MAIN CONTENT WRAPPER ===== */
+    .main-wrapper {
+      margin-left: var(--sidebar-width);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      transition: margin-left 0.3s;
+    }
+
+    /* TOP NAVBAR (Header Halaman) */
+    .top-navbar {
+      height: 70px;
+      background: var(--white);
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 2rem;
+      position: sticky;
+      top: 0;
+      z-index: 999;
+    }
+
+    .page-title { font-size: 1.15rem; font-weight: 700; margin: 0; color: #1e293b; }
+    .current-date { font-size: 0.85rem; color: #64748b; font-weight: 500; }
+
+    .main-content {
+      padding: 2rem;
+      flex: 1;
+    }
+
+    /* ===== UTILITIES & COMPONENTS ===== */
+    
+    /* Cards */
+    .card {
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+      background: #fff;
+      margin-bottom: 1.5rem;
+    }
+    .card-header {
+      background: transparent;
+      border-bottom: 1px solid var(--border-color);
+      padding: 1rem 1.5rem;
+      font-weight: 700;
+      color: #1e293b;
+    }
+    .card-body { padding: 1.5rem; }
+
+    /* Alert Styles */
+    .alert {
+      border: none;
+      border-radius: 8px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+      display: flex;
+      align-items: center;
+    }
+    .alert-success { background: #dcfce7; color: #166534; }
+    .alert-danger { background: #fee2e2; color: #991b1b; }
+    .alert-warning { background: #fef3c7; color: #92400e; }
+
+    /* Footer */
+    .footer {
+      padding: 1.5rem 2rem;
+      background: var(--white);
+      border-top: 1px solid var(--border-color);
+      color: #64748b;
+      font-size: 0.8rem;
+      text-align: center;
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 992px) {
+      .sidebar { left: -280px; }
+      .sidebar.show { left: 0; }
+      .main-wrapper { margin-left: 0; }
+      .top-navbar { padding: 0 1rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- SIDEBAR -->
+  <nav class="sidebar" id="sidebar">
+    <!-- Header: Logo -->
+    <div class="sidebar-header">
+      <a href="{{ url_for('home') }}" class="sidebar-brand">
+        <div class="brand-icon"><i class="bi bi-buildings-fill"></i></div>
+        <span>GLORY MITRA INDO</span>
+      </a>
+    </div>
+
+    <!-- Menu Items -->
+    <div class="sidebar-menu">
+      {% if current_user.is_authenticated %}
+        
+        <!-- DASHBOARD -->
+        <div class="nav-title">Utama</div>
+        <a href="{{ url_for('home') }}" class="nav-link {% if request.endpoint == 'home' %}active{% endif %}">
+          <i class="bi bi-grid-fill"></i> <span>Dashboard</span>
+        </a>
+        <a href="{{ url_for('absensi.absensi_page') }}" class="nav-link {% if request.endpoint == 'absensi.absensi_page' %}active{% endif %}">
+          <i class="bi bi-fingerprint"></i> <span>Absensi Karyawan</span>
+        </a>
+
+        <!-- MANAJEMEN -->
+        {% if current_user.role in ['admin', 'hrd'] %}
+        <div class="nav-title">Manajemen</div>
+        <a href="{{ url_for('hrd.dashboard') }}" class="nav-link {% if 'hrd.' in request.endpoint %}active{% endif %}">
+          <i class="bi bi-people-fill"></i> <span>Human Resources</span>
+        </a>
+        <a href="{{ url_for('accounting.dashboard') }}" class="nav-link {% if 'accounting.' in request.endpoint %}active{% endif %}">
+          <i class="bi bi-wallet-fill"></i> <span>Accounting & Fin</span>
+        </a>
+        {% endif %}
+
+        <!-- OPERASIONAL -->
+        <div class="nav-title">Operasional</div>
+        <a href="{{ url_for('marketing.marketing_dashboard') }}" class="nav-link {% if 'marketing.' in request.endpoint %}active{% endif %}">
+          <i class="bi bi-graph-up-arrow"></i> <span>Marketing</span>
+        </a>
+        <a href="{{ url_for('produksi.index') }}" class="nav-link {% if 'produksi.' in request.endpoint %}active{% endif %}">
+          <i class="bi bi-gear-wide-connected"></i> <span>Produksi</span>
+        </a>
+
+        <!-- LOGISTIK -->
+        <div class="nav-title">Logistik & SCM</div>
+        <a href="{{ url_for('pembelian.index') }}" class="nav-link {% if 'pembelian.' in request.endpoint %}active{% endif %}">
+          <i class="bi bi-cart4"></i> <span>Purchasing</span>
+        </a>
+        <a href="{{ url_for('gudang.index') }}" class="nav-link {% if 'gudang.' in request.endpoint %}active{% endif %}">
+          <i class="bi bi-boxes"></i> <span>Warehouse / Stok</span>
+        </a>
+        <a href="{{ url_for('pengiriman.index') }}" class="nav-link {% if 'pengiriman.' in request.endpoint %}active{% endif %}">
+          <i class="bi bi-truck"></i> <span>Pengiriman</span>
+        </a>
+
+      {% endif %}
+    </div>
+
+    <!-- User Footer -->
+    {% if current_user.is_authenticated %}
+    <div class="sidebar-footer">
+      <div class="user-card">
+        <div class="user-avatar">
+          {{ current_user.username[0] | upper }}
+        </div>
+        <div class="user-info">
+          <div class="user-name">{{ current_user.username }}</div>
+          <div class="user-role">{{ current_user.role }}</div>
+        </div>
+        <a href="{{ url_for('logout') }}" class="btn-logout-icon" onclick="return confirm('Logout dari sistem?')" title="Sign Out">
+          <i class="bi bi-power"></i>
+        </a>
+      </div>
+    </div>
+    {% endif %}
+  </nav>
+
+  <!-- MAIN WRAPPER -->
+  <div class="main-wrapper">
+    
+    <!-- TOP NAVBAR -->
+    <header class="top-navbar">
+      <div class="d-flex align-items-center gap-3">
+        <button class="btn btn-light d-lg-none" id="toggleSidebar">
+          <i class="bi bi-list fs-5"></i>
+        </button>
+        <h1 class="page-title d-none d-md-block">
+          {% if request.endpoint == 'home' %}Executive Dashboard{% else %}{{ title or "Sistem Informasi Manajemen" }}{% endif %}
+        </h1>
+      </div>
+      <div class="d-flex align-items-center gap-3">
+        <div class="current-date d-none d-sm-block">
+          <i class="bi bi-calendar2-week me-1"></i> 
+          <script>document.write(new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }))</script>
+        </div>
+        <div class="dropdown">
+          <a href="#" class="d-flex align-items-center link-dark text-decoration-none dropdown-toggle" data-bs-toggle="dropdown">
+            <i class="bi bi-bell fs-5 text-muted"></i>
+          </a>
+          <ul class="dropdown-menu dropdown-menu-end shadow border-0">
+            <li><span class="dropdown-item-text text-muted small">Tidak ada notifikasi baru</span></li>
+          </ul>
+        </div>
+      </div>
+    </header>
+
+    <!-- CONTENT AREA -->
+    <main class="main-content">
+      
+      <!-- Flash Messages -->
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          {% for category, msg in messages %}
+            <div class="alert alert-{{ category }} alert-dismissible fade show mb-4" role="alert">
+              <i class="bi bi-info-circle-fill me-2"></i>
+              <strong>Sistem:</strong> {{ msg }}
+              <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
+
+      <!-- Page Content Injection -->
+      {% block content %}{% endblock %}
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+      <div class="container-fluid">
+        <div class="row align-items-center">
+          <div class="col-md-6 text-md-start mb-2 mb-md-0">
+            <strong>PT Glory Mitra Indo</strong> &copy; {{ now().year }}
+          </div>
+          <div class="col-md-6 text-md-end">
+            Enterprise Resource Planning System <span class="badge bg-secondary rounded-pill ms-1">v2.1 Stable</span>
+          </div>
+        </div>
+      </div>
+    </footer>
+
+  </div>
+
+  <!-- JS Bootstrap -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  
+  <script>
+    // Sidebar Toggle Logic
+    const toggleBtn = document.getElementById('toggleSidebar');
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.createElement('div'); 
+    
+    // Create overlay for mobile
+    overlay.className = 'sidebar-overlay';
+    document.body.appendChild(overlay);
+
+    if(toggleBtn){
+      toggleBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        sidebar.classList.toggle('show');
+      });
+
+      // Close sidebar when clicking outside
+      document.addEventListener('click', (e) => {
+        if(window.innerWidth < 992 && sidebar.classList.contains('show') && !sidebar.contains(e.target) && e.target !== toggleBtn) {
+          sidebar.classList.remove('show');
+        }
+      });
+    }
+
+    // Auto-dismiss alerts
+    setTimeout(() => {
+      document.querySelectorAll('.alert').forEach(alert => {
+        let bsAlert = new bootstrap.Alert(alert);
+        bsAlert.close();
+      });
+    }, 5000);
+  </script>
+
+</body>
+</html>

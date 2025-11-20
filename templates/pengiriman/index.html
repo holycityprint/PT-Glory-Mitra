@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block content %}
+
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700&display=swap" rel="stylesheet">
+
+<style>
+  .card-clean { background: #fff; border: 1px solid #e2e8f0; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); }
+  .table-modern th { background: #f8fafc; color: #64748b; font-weight: 600; text-transform: uppercase; font-size: 0.75rem; padding: 1rem; border-bottom: 1px solid #e2e8f0; }
+  .table-modern td { padding: 1rem; border-bottom: 1px solid #f1f5f9; vertical-align: middle; color: #334155; }
+</style>
+
+<div class="container-fluid px-4 py-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h6 class="text-uppercase text-muted small fw-bold mb-1">Logistik & Distribusi</h6>
+      <h2 class="fw-bold text-dark" style="font-family: 'Plus Jakarta Sans';">Riwayat Surat Jalan</h2>
+    </div>
+    <a href="{{ url_for('pengiriman.buat_surat') }}" class="btn btn-primary rounded-pill px-4">
+      <i class="bi bi-file-earmark-plus me-2"></i> Buat Surat Jalan
+    </a>
+  </div>
+
+  <div class="card-clean">
+    <div class="table-responsive">
+      <table class="table w-100 mb-0 table-modern">
+        <thead>
+          <tr>
+            <th>No. Surat</th>
+            <th>Tanggal</th>
+            <th>Penerima</th>
+            <th>Kurir</th>
+            <th>Kendaraan</th>
+            <th class="text-end">Aksi</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for o in orders %}
+          <tr>
+            <td class="fw-bold text-primary">{{ o.no_surat }}</td>
+            <td>{{ o.tanggal.strftime('%d-%m-%Y') }}</td>
+            <td class="fw-bold">{{ o.nama_penerima }}</td>
+            <td>{{ o.nama_kurir }}</td>
+            <td><span class="badge bg-light text-dark border">{{ o.nopol_kendaraan }}</span></td>
+            <td class="text-end">
+              <a href="{{ url_for('pengiriman.cetak', id=o.id) }}" class="btn btn-sm btn-outline-dark rounded-pill px-3">
+                <i class="bi bi-printer me-1"></i> Cetak
+              </a>
+            </td>
+          </tr>
+          {% else %}
+          <tr><td colspan="6" class="text-center py-5 text-muted">Belum ada riwayat pengiriman.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}
