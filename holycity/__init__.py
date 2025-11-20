@@ -4,10 +4,13 @@ from flask_login import (
 )
 from datetime import datetime
 import os
+from werkzeug.security import generate_password_hash
 
 from config import Config
 from holycity.extensions import db, login_manager, migrate, csrf
-from models import User
+
+# PENTING: Import Employee juga untuk relasi User
+from models import User, Employee 
 
 def create_app():
     """Application Factory utama Holycity Portal."""
@@ -18,7 +21,7 @@ def create_app():
     )
     app.config.from_object(Config)
 
-    # konfigurasi tambahan untuk kestabilan CSRF
+    # Konfigurasi CSRF
     app.config["WTF_CSRF_ENABLED"] = True
     app.config["WTF_CSRF_TIME_LIMIT"] = None
 
@@ -37,14 +40,50 @@ def create_app():
     def load_user(user_id):
         return db.session.get(User, int(user_id))
 
-    # --- Admin default ---
+    # --- AUTO SETUP DATABASE (The Fix) ---
     with app.app_context():
-        if not User.query.filter_by(username="admin").first():
-            admin = User(username="admin", role="admin")
-            admin.set_password("1234")
-            db.session.add(admin)
-            db.session.commit()
-            print("✅  Admin default dibuat: admin / 1234")
+        try:
+            # 1. BUAT TABEL DULU (Wajib ada sebelum query User)
+            # Ini solusi untuk error "no such table: users"
+            db.create_all()
+            print(">>> ✅ Tabel Database Berhasil Dicek/Dibuat.")
+
+            # 2. CEK & BUAT ADMIN
+            if not User.query.filter_by(username="admin").first():
+                print(">>> 👤 Admin belum ada. Memulai pembuatan...")
+                
+                # Buat Dummy Employee dulu (karena User butuh employee_id)
+                # Cek apakah employee sudah ada?
+                first_emp = Employee.query.first()
+                if not first_emp:
+                    sys_admin_emp = Employee(
+                        name="System Administrator",
+                        department="IT",
+                        position="Super Admin"
+                    )
+                    db.session.add(sys_admin_emp)
+                    db.session.commit()
+                    emp_id = sys_admin_emp.id
+                    print(">>> 👤 Dummy Employee dibuat untuk Admin.")
+                else:
+                    emp_id = first_emp.id
+
+                # Buat User Admin
+                admin = User(
+                    username="admin", 
+                    role="admin",
+                    employee_id=emp_id # Link ke employee
+                )
+                admin.set_password("1234") # Set password pakai method hash
+                
+                db.session.add(admin)
+                db.session.commit()
+                print(">>> 🎉 Admin default dibuat: admin / 1234")
+            else:
+                print(">>> 👌 Admin sudah tersedia.")
+                
+        except Exception as e:
+            print(f">>> ❌ ERROR DATABASE INIT: {e}")
 
     # --- IMPORT BLUEPRINT ---
     from routes.absensi import absensi_bp
@@ -54,7 +93,7 @@ def create_app():
     from routes.produksi import produksi_bp
     from routes.pembelian import pembelian_bp
     from routes.gudang import gudang_bp
-    from routes.pengiriman import pengiriman_bp  # ✅ Import Pengiriman
+    from routes.pengiriman import pengiriman_bp
 
     # --- REGISTER BLUEPRINT ---
     app.register_blueprint(absensi_bp)
@@ -64,7 +103,7 @@ def create_app():
     app.register_blueprint(produksi_bp)
     app.register_blueprint(pembelian_bp)
     app.register_blueprint(gudang_bp)
-    app.register_blueprint(pengiriman_bp)  # ✅ Register Pengiriman
+    app.register_blueprint(pengiriman_bp)
 
     # --- Routes utama ---
     @app.route("/")
@@ -88,12 +127,17 @@ def create_app():
         if request.method == "POST":
             username = request.form.get("username")
             password = request.form.get("password")
+            
+            # Cek user di database
             user = User.query.filter_by(username=username).first()
+            
             if user and user.check_password(password):
                 login_user(user)
                 flash(f"Selamat datang, {user.username}!", "success")
                 return redirect(url_for("home"))
+            
             flash("⚠️  Login gagal. Periksa username atau password.", "danger")
+        
         return render_template("login.html")
 
     @app.route("/logout")
