@@ -12,6 +12,8 @@ class User(db.Model, UserMixin):
     password = db.Column(db.String(255), nullable=False)
     role = db.Column(db.String(50), default="employee")
     employee_id = db.Column(db.Integer, db.ForeignKey("employees.id"))
+    
+    # Relasi ke Data Karyawan
     employee = db.relationship("Employee", back_populates="user", uselist=False)
 
     def set_password(self, raw_password):
@@ -32,7 +34,7 @@ class Employee(db.Model):
     name = db.Column(db.String(150), nullable=False)
     department = db.Column(db.String(100))
     position = db.Column(db.String(100))
-    join_date = db.Column(db.Date, default=lambda: datetime.utcnow().date())
+    join_date = db.Column(db.Date, default=datetime.utcnow)
     salary = db.Column(db.Float, default=0.0)
 
     user = db.relationship("User", back_populates="employee", uselist=False)
@@ -59,10 +61,11 @@ class Attendance(db.Model):
     photo = db.Column(db.String(255))
     timestamp = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
     employee_id = db.Column(db.Integer, db.ForeignKey("employees.id"))
+    
     employee = db.relationship("Employee", back_populates="attendance_records")
 
     def __repr__(self):
-        return f"<Attendance {self.username} ({self.status}) @ {self.timestamp:%Y-%m-%d %H:%M:%S}>"
+        return f"<Attendance {self.username} ({self.status})>"
 
 
 # ---------- PENILAIAN KINERJA ----------
@@ -71,15 +74,16 @@ class Performance(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     employee_id = db.Column(db.Integer, db.ForeignKey("employees.id"))
-    period = db.Column(db.String(7))
+    period = db.Column(db.String(7)) # Format: YYYY-MM
     score = db.Column(db.Float)
     remarks = db.Column(db.Text)
     evaluator = db.Column(db.String(100))
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+    
     employee = db.relationship("Employee", back_populates="performance_records")
 
     def __repr__(self):
-        return f"<Performance emp={self.employee_id} {self.period}={self.score}>"
+        return f"<Performance emp={self.employee_id} score={self.score}>"
 
 
 # ---------- TRANSAKSI KEUANGAN ----------
@@ -87,7 +91,7 @@ class Transaction(db.Model):
     __tablename__ = "transactions"
 
     id = db.Column(db.Integer, primary_key=True)
-    date = db.Column(db.Date, default=lambda: datetime.utcnow().date())
+    date = db.Column(db.Date, default=datetime.utcnow)
     category = db.Column(db.String(20))
     description = db.Column(db.String(255))
     source = db.Column(db.String(100))
@@ -115,7 +119,7 @@ class MarketingProspect(db.Model):
     leads = db.relationship("MarketingLead", back_populates="prospect", cascade="all, delete-orphan")
 
     def __repr__(self):
-        return f"<Prospect {self.client_name} - {self.status}>"
+        return f"<Prospect {self.client_name}>"
 
 
 class MarketingLead(db.Model):
@@ -133,7 +137,7 @@ class MarketingLead(db.Model):
     projects = db.relationship("MarketingProject", back_populates="lead", cascade="all, delete-orphan")
 
     def __repr__(self):
-        return f"<Lead {self.product_interest} ({self.stage})>"
+        return f"<Lead {self.product_interest}>"
 
 
 class MarketingProject(db.Model):
@@ -152,7 +156,7 @@ class MarketingProject(db.Model):
     followups = db.relationship("MarketingFollowUp", back_populates="project", cascade="all, delete-orphan")
 
     def __repr__(self):
-        return f"<Project {self.project_name} ({self.status})>"
+        return f"<Project {self.project_name}>"
 
 
 class MarketingFollowUp(db.Model):
@@ -167,11 +171,8 @@ class MarketingFollowUp(db.Model):
 
     project = db.relationship("MarketingProject", back_populates="followups")
 
-    def __repr__(self):
-        return f"<FollowUp {self.project_id} via {self.method}>"
 
-
-# ---------- DATA PRODUKSI ----------
+# ---------- DATA PRODUKSI (Simple) ----------
 class ProductionRecord(db.Model):
     __tablename__ = "production_records"
 
@@ -186,11 +187,8 @@ class ProductionRecord(db.Model):
     keterangan = db.Column(db.Text)
     status = db.Column(db.String(20), default="proses")
 
-    def __repr__(self):
-        return f"<Produksi {self.tanggal} {self.vendor_bahan} {self.tahap}>"
 
-
-# ---------- PRODUKSI ARTIKEL ----------
+# ---------- PRODUKSI ARTIKEL (Detail) ----------
 class ProductionArticle(db.Model):
     __tablename__ = "production_articles"
 
@@ -201,9 +199,6 @@ class ProductionArticle(db.Model):
     gambar = db.Column(db.String(255))
 
     steps = db.relationship("ProductionStep", back_populates="article", cascade="all, delete-orphan")
-
-    def __repr__(self):
-        return f"<Article {self.nama_artikel}>"
 
 
 class ProductionStep(db.Model):
@@ -223,7 +218,7 @@ class ProductionStep(db.Model):
     warna_bahan = db.Column(db.String(50))
     harga_total = db.Column(db.Float)
     metode_sablon = db.Column(db.String(50))
-    ukuran_data = db.Column(db.JSON)
+    ukuran_data = db.Column(db.JSON) # Perlu support JSON
     ekspedisi = db.Column(db.String(100))
     harga_cutting = db.Column(db.Float)
     harga_jahit   = db.Column(db.Float)
@@ -234,9 +229,6 @@ class ProductionStep(db.Model):
     ukuran = db.Column(db.String(20))
     
     article = db.relationship("ProductionArticle", back_populates="steps")
-
-    def __repr__(self):
-        return f"<Step {self.tahap}>"
 
 
 # ---------- PEMBELIAN BAHAN ----------
@@ -253,9 +245,6 @@ class MaterialPurchase(db.Model):
     total_harga = db.Column(db.Float, default=0)
     keterangan = db.Column(db.Text)
 
-    def __repr__(self):
-        return f"<Purchase {self.nama_bahan}>"
-
 
 # ---------- GUDANG / INVENTORY ----------
 class WarehouseItem(db.Model):
@@ -263,27 +252,23 @@ class WarehouseItem(db.Model):
     
     id = db.Column(db.Integer, primary_key=True)
     nama_item = db.Column(db.String(100), nullable=False, unique=True)
-    kategori = db.Column(db.String(50)) # Kain, Benang, Aksesoris
+    kategori = db.Column(db.String(50)) 
     stok = db.Column(db.Float, default=0)
-    satuan = db.Column(db.String(20)) # Kg, Yard, Roll
+    satuan = db.Column(db.String(20)) 
     lokasi_rak = db.Column(db.String(50))
-    last_updated = db.Column(db.DateTime, default=datetime.utcnow)
-
-     # ✅ KOLOM BARU (Penyebab Error)
-    lokasi_gudang = db.Column(db.String(50), default="Gudang Utama") 
-    
+    lokasi_gudang = db.Column(db.String(50), default="Gudang Utama")
     last_updated = db.Column(db.DateTime, default=datetime.utcnow)
 
     def __repr__(self):
         return f"<Stok {self.nama_item}: {self.stok}>"
 
 
-# ---------- PENGIRIMAN / SURAT JALAN (YANG DITAMBAHKAN) ----------
+# ---------- PENGIRIMAN / SURAT JALAN ----------
 class DeliveryOrder(db.Model):
     __tablename__ = 'delivery_orders'
 
     id = db.Column(db.Integer, primary_key=True)
-    no_surat = db.Column(db.String(50), unique=True, nullable=False) # SJ/2025/XI/001
+    no_surat = db.Column(db.String(50), unique=True, nullable=False)
     tanggal = db.Column(db.Date, default=datetime.utcnow)
     
     nama_penerima = db.Column(db.String(150), nullable=False)
@@ -291,12 +276,11 @@ class DeliveryOrder(db.Model):
     no_telp = db.Column(db.String(20))
 
     nama_kurir = db.Column(db.String(100))
-    nopol_kendaraan = db.Column(db.String(20)) # B 1234 XYZ
-    jenis_kendaraan = db.Column(db.String(50)) # Mobil Box, Motor, Truk
+    nopol_kendaraan = db.Column(db.String(20)) 
+    jenis_kendaraan = db.Column(db.String(50)) 
 
     list_barang = db.Column(db.Text) 
     catatan = db.Column(db.Text)
-    
     status = db.Column(db.String(20), default="Dikirim")
 
     def __repr__(self):
