@@ -8,6 +8,10 @@
   .nav-pills .nav-link.active { background-color: #0f172a; color: #fff; }
   .card-option { border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; background: #f8fafc; margin-top: 15px; }
   .form-label { font-size: 0.85rem; font-weight: 600; color: #334155; }
+  /* Style tambahan untuk tabel dinamis */
+  .table-kaos td { vertical-align: middle; padding: 5px; }
+  .btn-remove { color: #ef4444; cursor: pointer; }
+  .btn-remove:hover { color: #b91c1c; }
 </style>
 
 <h3 class="fw-bold text-primary mb-3">
@@ -17,7 +21,7 @@
 
 <form method="POST" class="col-md-8">
 
-  {# =================== PEMAKAIAN BAHAN (REVISI TOTAL) =================== #}
+  {# =================== PEMAKAIAN BAHAN (REVISI) =================== #}
   {% if step.tahap == 'Pembelian Bahan' or step.tahap == 'Pemakaian Bahan' %}
   
   {% if step.is_posted %}
@@ -37,12 +41,12 @@
     <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
       <li class="nav-item" role="presentation">
         <button class="nav-link active" id="pills-kain-tab" data-bs-toggle="pill" data-bs-target="#pills-kain" type="button" role="tab" onclick="setSumber('kain_gudang')">
-          <i class="bi bi-scissors me-1"></i> Ambil Kain (Roll/Meter)
+          <i class="bi bi-scissors me-1"></i> Ambil Kain (Roll/Kg)
         </button>
       </li>
       <li class="nav-item" role="presentation">
         <button class="nav-link" id="pills-kaos-tab" data-bs-toggle="pill" data-bs-target="#pills-kaos" type="button" role="tab" onclick="setSumber('kaos_gudang')">
-          <i class="bi bi-box-seam me-1"></i> Ambil Kaos Polos
+          <i class="bi bi-box-seam me-1"></i> Ambil Kaos Polos (Multi Ukuran)
         </button>
       </li>
     </ul>
@@ -52,11 +56,11 @@
 
     <div class="tab-content" id="pills-tabContent">
       
-      <!-- TAB 1: AMBIL KAIN DARI GUDANG -->
+      <!-- TAB 1: AMBIL KAIN (ROLL/KG/METER) -->
       <div class="tab-pane fade show active" id="pills-kain" role="tabpanel">
         <div class="card-option border-primary bg-white">
           <div class="alert alert-info small py-2 mb-3">
-            <i class="bi bi-info-circle me-1"></i> Pilih stok kain dari gudang. Stok akan otomatis berkurang.
+            <i class="bi bi-info-circle me-1"></i> Pilih stok kain. Tentukan jumlah dalam Roll, Kg, atau Meter.
           </div>
 
           <div class="mb-3">
@@ -70,67 +74,160 @@
           </div>
 
           <div class="row g-3">
-            <div class="col-md-6">
+            <div class="col-md-4">
               <label class="form-label">Jumlah Pemakaian</label>
-              <input type="number" step="any" name="jumlah_ambil" class="form-control" placeholder="0">
+              <input type="number" step="any" name="jumlah_ambil" class="form-control" placeholder="0" id="input_kain_jumlah">
             </div>
-            <div class="col-md-6">
-              <label class="form-label">Detail Warna (Opsional)</label>
-              <input type="text" name="detail_warna" class="form-control" placeholder="Contoh: Hitam Jetblack">
+            <div class="col-md-4">
+              <label class="form-label">Satuan</label>
+              <select name="satuan_pakai" class="form-select">
+                <option value="Kg">Kilogram (Kg)</option>
+                <option value="Roll">Roll</option>
+                <option value="Meter">Meter</option>
+                <option value="Yard">Yard</option>
+              </select>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Detail Warna</label>
+              <input type="text" name="detail_warna" class="form-control" placeholder="Cth: Hitam Jetblack">
             </div>
           </div>
         </div>
       </div>
 
-      <!-- TAB 2: AMBIL KAOS POLOS DARI GUDANG -->
+      <!-- TAB 2: AMBIL KAOS POLOS (MULTI SIZE) -->
       <div class="tab-pane fade" id="pills-kaos" role="tabpanel">
         <div class="card-option border-success bg-white">
           <div class="alert alert-success small py-2 mb-3 bg-opacity-10 text-success border-success">
-            <i class="bi bi-info-circle me-1"></i> Pilih stok kaos polos untuk diproses sablon.
+            <i class="bi bi-info-circle me-1"></i> Tambahkan detail ukuran dan jumlah kaos yang diambil.
           </div>
 
-          <div class="mb-3">
-            <label class="form-label">Pilih Kaos Polos</label>
-            <select name="warehouse_item_id" class="form-select">
-              <option value="" disabled selected>-- Pilih Stok Kaos --</option>
-              {% for item in stok_gudang %}
-                <option value="{{ item.id }}">{{ item.nama_item }} (Sisa: {{ item.stok }} {{ item.satuan }})</option>
-              {% endfor %}
-            </select>
-          </div>
-
-          <div class="row g-3">
-            <div class="col-md-4">
-              <label class="form-label">Jumlah Ambil</label>
-              <input type="number" step="any" name="jumlah_ambil" class="form-control" placeholder="0">
-            </div>
-            <div class="col-md-4">
-              <label class="form-label">Warna</label>
-              <input type="text" name="detail_warna" class="form-control" placeholder="Warna Kaos">
-            </div>
-            <div class="col-md-4">
-              <label class="form-label">Ukuran</label>
-              <select name="detail_ukuran" class="form-select">
-                <option value="S">S</option>
-                <option value="M">M</option>
-                <option value="L">L</option>
-                <option value="XL">XL</option>
-                <option value="XXL">XXL</option>
-                <option value="All Size">All Size</option>
+          <!-- Header: Stok & Warna -->
+          <div class="row g-3 mb-3">
+            <div class="col-md-8">
+              <label class="form-label">Pilih Stok Kaos Polos</label>
+              <select name="warehouse_item_id_kaos" class="form-select">
+                <option value="" disabled selected>-- Pilih Stok Kaos --</option>
+                {% for item in stok_gudang %}
+                  <option value="{{ item.id }}">{{ item.nama_item }} (Sisa: {{ item.stok }} {{ item.satuan }})</option>
+                {% endfor %}
               </select>
             </div>
+            <div class="col-md-4">
+              <label class="form-label">Warna Bahan</label>
+              <input type="text" name="detail_warna_kaos" class="form-control" placeholder="Warna Kaos">
+            </div>
           </div>
+
+          <!-- Area Input Dinamis -->
+          <div class="bg-light p-3 rounded border mb-3">
+            <label class="form-label mb-2">Rincian Ukuran & Jumlah</label>
+            <table class="table table-borderless table-sm table-kaos mb-0">
+              <thead>
+                <tr class="text-muted small">
+                  <th width="40%">Ukuran</th>
+                  <th width="40%">Jumlah (Pcs)</th>
+                  <th width="20%"></th>
+                </tr>
+              </thead>
+              <tbody id="kaos-tbody">
+                <!-- Baris Pertama (Default) -->
+                <tr>
+                  <td>
+                    <select name="kaos_ukuran[]" class="form-select form-select-sm">
+                      <option value="S">S</option>
+                      <option value="M">M</option>
+                      <option value="L">L</option>
+                      <option value="XL">XL</option>
+                      <option value="XXL">XXL</option>
+                      <option value="All Size">All Size</option>
+                    </select>
+                  </td>
+                  <td>
+                    <input type="number" name="kaos_jumlah[]" class="form-control form-control-sm kaos-qty" placeholder="0" oninput="hitungTotalKaos()">
+                  </td>
+                  <td></td> <!-- Tombol hapus tidak ada di baris pertama -->
+                </tr>
+              </tbody>
+            </table>
+            
+            <button type="button" class="btn btn-outline-primary btn-sm mt-2" onclick="tambahBarisKaos()">
+              <i class="bi bi-plus-circle"></i> Tambah Ukuran
+            </button>
+          </div>
+
+          <!-- Total Kalkulasi Otomatis -->
+          <div class="row g-3 align-items-center justify-content-end">
+            <div class="col-auto">
+              <span class="fw-bold text-muted">Total Ambil (Pcs):</span>
+            </div>
+            <div class="col-md-3">
+              <!-- Input ini readonly, digunakan agar backend menerima total 'jumlah_ambil' -->
+              <input type="number" name="jumlah_ambil_kaos" id="total_ambil_kaos" class="form-control fw-bold text-end bg-light" readonly value="0">
+            </div>
+          </div>
+
         </div>
       </div>
 
     </div>
 
+    <!-- JavaScript untuk Logika Tab & Dinamis -->
     <script>
+      // 1. Logic Pindah Tab (Reset Nilai)
       function setSumber(val) {
         document.getElementById('input_sumber').value = val;
-        // Disable input di tab yang tidak aktif agar tidak bentrok (opsional, tapi aman)
-        const inputs = document.querySelectorAll('input[type="number"]');
-        inputs.forEach(i => i.value = ''); 
+        
+        // Jika pindah ke Kain, input kaos di-disable/reset agar tidak terkirim ganda (opsional tergantung backend)
+        // Disini kita hanya mereset visual saja
+        if(val == 'kain_gudang'){
+           document.getElementById('input_kain_jumlah').setAttribute('name', 'jumlah_ambil');
+           document.getElementById('total_ambil_kaos').setAttribute('name', ''); // Matikan name kaos
+        } else {
+           document.getElementById('input_kain_jumlah').setAttribute('name', ''); // Matikan name kain
+           document.getElementById('total_ambil_kaos').setAttribute('name', 'jumlah_ambil'); // Aktifkan name kaos
+        }
+      }
+
+      // 2. Logic Tambah Baris Kaos
+      function tambahBarisKaos() {
+        const tbody = document.getElementById('kaos-tbody');
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>
+            <select name="kaos_ukuran[]" class="form-select form-select-sm">
+              <option value="S">S</option>
+              <option value="M">M</option>
+              <option value="L">L</option>
+              <option value="XL">XL</option>
+              <option value="XXL">XXL</option>
+              <option value="All Size">All Size</option>
+            </select>
+          </td>
+          <td>
+            <input type="number" name="kaos_jumlah[]" class="form-control form-control-sm kaos-qty" placeholder="0" oninput="hitungTotalKaos()">
+          </td>
+          <td class="text-center">
+            <i class="bi bi-trash btn-remove" onclick="hapusBaris(this)"></i>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      }
+
+      // 3. Logic Hapus Baris
+      function hapusBaris(el) {
+        el.closest('tr').remove();
+        hitungTotalKaos();
+      }
+
+      // 4. Logic Hitung Total Kaos
+      function hitungTotalKaos() {
+        let total = 0;
+        const inputs = document.querySelectorAll('.kaos-qty');
+        inputs.forEach(input => {
+          total += parseFloat(input.value) || 0;
+        });
+        document.getElementById('total_ambil_kaos').value = total;
       }
     </script>
 
@@ -138,7 +235,7 @@
   {# End of if step.is_posted #}
 
 
-  {# =================== CUTTING / JAHIT =================== #}
+  {# =================== CUTTING / JAHIT (TETAP) =================== #}
   {% elif step.tahap in ['Cutting','Jahit'] %}
   <p class="text-muted">Isi jumlah dan harga (Rp) per kategori ukuran</p>
 
